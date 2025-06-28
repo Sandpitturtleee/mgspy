@@ -2,13 +2,14 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import time
 
 
 class WebScrapper:
     def __init__(self, url):
         self.url = url
 
-    def scrap_character_activity(self):
+    def scrap_character_activity1(self):
         # Send a GET request to fetch the HTML source
         response = requests.get(self.url)
 
@@ -37,6 +38,53 @@ class WebScrapper:
                     'datetime': current_datetime
                 })
         return profiles
+
+    def scrap_character_activity(self):
+        profiles = []
+
+        start_time = time.time()  # Start timing
+        elapsed_time = 0
+        try:
+            # Send a GET request to fetch the HTML source
+            response = requests.get(self.url, timeout=30)  # Add timeout here
+            elapsed_time = time.time() - start_time  # End timing here (success)
+
+            # Parse the HTML source
+            soup = BeautifulSoup(response.text, 'html.parser')
+            outer_div = soup.find('div', class_='light-brown-box news-container no-footer berufs-popup')
+            if not outer_div:
+                raise Exception("outer_div not found")
+            inner_div = outer_div.find('div', class_='news-body')
+            if not inner_div:
+                raise Exception("inner_div not found")
+
+            current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            for a_tag in inner_div.find_all('a', class_='statistics-rank'):
+                profile_link = a_tag['href']
+
+                # Use regular expression to extract profile number and char number
+                profile_match = re.search(r"/profile/view,(\d+)#char_(\d+)", profile_link)
+                if profile_match:
+                    profile_number = profile_match.group(1)
+                    char_number = profile_match.group(2)
+
+                    profiles.append({
+                        'profile': profile_number,
+                        'char': char_number,
+                        'datetime': current_datetime
+                    })
+            if not profiles:  # If parsing succeeded but no profiles found, also treat as failure if you want
+                profiles.append({
+                    'profile': 0,
+                    'char': 0,
+                    'datetime': current_datetime
+                })
+
+        except Exception as e:
+            elapsed_time = time.time() - start_time  # End timing here (success)
+            print(str(e))
+            return profiles, elapsed_time
+        return profiles, elapsed_time
 
     def get_profile_data(self, profile_data_list):
         base_url = "https://www.margonem.pl/profile/view"
