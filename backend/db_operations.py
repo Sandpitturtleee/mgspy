@@ -106,7 +106,7 @@ class DbOperations:
             print("Profile data inserted successfully.")
 
     def select_data(self, db_connection, table: str, columns: str = '*', where_clause: str = None,
-                    params: str = None):
+                    params: tuple = None):
         """
         Select data from a PostgreSQL table.
 
@@ -136,7 +136,7 @@ class DbOperations:
             print(f"{len(results)} rows selected from '{table}'.")
             return results
 
-    def delete_data(self, db_connection, table: str, where_clause: str = None, params: str = None):
+    def delete_data(self, db_connection, table: str, where_clause: str = None, params: tuple = None):
         """
         Delete data from a PostgreSQL table.
 
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
         # Select all rows:
         # all_rows = db.select_data(connection,table='activity_data')
-        all_rows = db.select_data(db_connection=c, table='profile_data')
+        all_rows = db.select_data(db_connection=c, table='activity_data')
         print(all_rows)
 
         # Select with filter:
