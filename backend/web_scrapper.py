@@ -6,50 +6,51 @@ import time
 
 
 class WebScrapper:
-    def __init__(self, url):
-        self.url = url
+    """
+    A web scraper class for extracting player activity and profile data from the Margonem game website.
 
-    def scrap_character_activity1(self):
-        # Send a GET request to fetch the HTML source
-        response = requests.get(self.url)
+    Attributes
+    ----------
+    url : str
+        The main URL to scrape the character activity from.
+    profile_url : str
+        The base URL used to scrape detailed profile data for each character.
 
-        # Parse the HTML source
-        soup = BeautifulSoup(response.text, 'html.parser')
-        outer_div = soup.find('div', class_='light-brown-box news-container no-footer berufs-popup')
-        inner_div = outer_div.find('div', class_='news-body')
+    Methods
+    -------
+    scrap_character_activity() -> tuple[list[dict], int]
+        Scrape the character activity summary from the provided URL.
 
-        profiles = []
-        for a_tag in inner_div.find_all('a', class_='statistics-rank'):
-            profile_link = a_tag['href']
-            nickname = a_tag.get_text(strip=True)
+    scrap_profile_data(player_activity: list[dict]) -> list[dict]
+        Scrape detailed profile data for the player activity list.
+    """
+    def __init__(self):
+        self.stats_url = "https://www.margonem.pl/stats"
+        self.profile_url = "https://www.margonem.pl/profile/view"
 
-            # Use regular expression to extract profile number and char number
-            profile_match = re.search(r"/profile/view,(\d+)#char_(\d+)", profile_link)
-            if profile_match:
-                profile_number = profile_match.group(1)
-                char_number = profile_match.group(2)
+    def scrap_character_activity(self) -> (list[dict], int):
+        """
+        Scrape player activity data from the website.
 
-                # Get current date and time
-                current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        Returns
+        -------
+        tuple[list[dict], int]
+            A tuple containing:
+              - A list of dictionaries, each containing 'profile', 'char', and 'datetime' keys.
+              - The elapsed time (in seconds) taken for the request and processing.
 
-                profiles.append({
-                    'profile': profile_number,
-                    'char': char_number,
-                    'datetime': current_datetime
-                })
-        return profiles
-
-    def scrap_character_activity(self):
-        profiles = []
-
-        start_time = time.time()  # Start timing
-        elapsed_time = 0
+        Example dictionary in the returned list:
+            {
+                'profile': 'user_profile_id',
+                'char': 'character_id',
+                'datetime': 'YYYY-MM-DD HH:MM:SS'
+            }
+        """
+        player_activity = []
+        start_time = time.time()
         try:
-            # Send a GET request to fetch the HTML source
-            response = requests.get(self.url, timeout=30)  # Add timeout here
-            elapsed_time = time.time() - start_time  # End timing here (success)
-
-            # Parse the HTML source
+            response = requests.get(self.stats_url, timeout=30)
+            elapsed_time = time.time() - start_time
             soup = BeautifulSoup(response.text, 'html.parser')
             outer_div = soup.find('div', class_='light-brown-box news-container no-footer berufs-popup')
             if not outer_div:
@@ -62,50 +63,69 @@ class WebScrapper:
             for a_tag in inner_div.find_all('a', class_='statistics-rank'):
                 profile_link = a_tag['href']
 
-                # Use regular expression to extract profile number and char number
                 profile_match = re.search(r"/profile/view,(\d+)#char_(\d+)", profile_link)
                 if profile_match:
                     profile_number = profile_match.group(1)
                     char_number = profile_match.group(2)
 
-                    profiles.append({
+                    player_activity.append({
                         'profile': profile_number,
                         'char': char_number,
                         'datetime': current_datetime
                     })
-            if not profiles:  # If parsing succeeded but no profiles found, also treat as failure if you want
-                profiles.append({
+            if not player_activity:
+                player_activity.append({
                     'profile': 0,
                     'char': 0,
                     'datetime': current_datetime
                 })
 
         except Exception as e:
-            elapsed_time = time.time() - start_time  # End timing here (success)
+            elapsed_time = time.time() - start_time
             print(str(e))
-            return profiles, elapsed_time
-        return profiles, elapsed_time
+            return player_activity, elapsed_time
+        return player_activity, elapsed_time
 
-    def get_profile_data(self, profile_data_list):
-        base_url = "https://www.margonem.pl/profile/view"
-        all_characters = []
+    def scrap_profile_data(self, player_activity: list[dict]) -> list[dict]:
+        """
+        Scrape detailed profile data for players based on an activity list.
 
-        for profile_data in profile_data_list:
+        Parameters
+        ----------
+        player_activity : list[dict]
+            A list of dictionaries with keys 'profile' and 'char' describing player activity.
+
+        Returns
+        -------
+        list[dict]
+            A list of dictionaries, each containing profile and character data such as:
+                - profile (str): Profile ID
+                - char (str): Character ID
+                - nick (str): Character nickname
+                - lvl (str): Character level
+                - world (str): Character world
+
+        Example return value:
+            [
+                {
+                    'profile': '123456',
+                    'char': '654321',
+                    'nick': 'SomeNick',
+                    'lvl': '123',
+                    'world': '#berufs'
+                },
+                ...
+            ]
+        """
+        player_data = []
+        for profile_data in player_activity:
             profile = profile_data.get('profile')
             char = profile_data.get('char')
-
             if profile and char:
-                constructed_url = f"{base_url},{profile}#char_{char},berufs"
-                # Send a GET request to fetch the HTML source
+                constructed_url = f"{self.profile_url},{profile}#char_{char},berufs"
                 response = requests.get(constructed_url)
-
-                # Parse the HTML source
                 soup = BeautifulSoup(response.text, 'html.parser')
-
-                # Find the div with class 'character-list'
                 character_list_div = soup.find('div', class_='character-list')
-
-                # Extract all list elements with data-world matching '#xxx'
                 if character_list_div:
                     for li in character_list_div.find_all('li', class_='char-row'):
                         data_world = li.get('data-world', '')
@@ -117,6 +137,6 @@ class WebScrapper:
                                 'lvl': li.get('data-lvl', ''),
                                 'world': data_world,
                             }
-                            all_characters.append(character_info)
+                            player_data.append(character_info)
 
-        return all_characters
+        return player_data

@@ -1,5 +1,5 @@
 from backend.app_processes import AppProcesses
 
 if __name__ == '__main__':
-    app = AppProcesses(url="https://www.margonem.pl/stats",db_name="mgspy")
+    app = AppProcesses(db_name="mgspy")
     app.process_app()

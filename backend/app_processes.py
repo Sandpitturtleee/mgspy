@@ -34,8 +34,7 @@ class AppProcesses:
     process_app()
         Start and manage the scraping and saving processes.
     """
-    def __init__(self, url, db_name):
-        self.url = url
+    def __init__(self, db_name):
         self.db_name = db_name
         self.scrap_player_activity_interval = 60
         self.save_player_activity_interval = 120
@@ -57,7 +56,7 @@ class AppProcesses:
         None
         """
         interval = self.scrap_player_activity_interval
-        web_scrapper = WebScrapper(url=self.url)
+        web_scrapper = WebScrapper()
         while not control_event.is_set():
             timestamp = time.time()
             activity, elapsed_time = web_scrapper.scrap_character_activity()
@@ -89,6 +88,7 @@ class AppProcesses:
             print(f"Saved data at {time.ctime()}")
             db.insert_data(connection, scrapped_player_activity)
             scrapped_player_activity[:] = []
+
 
     def process_app(self):
         """
