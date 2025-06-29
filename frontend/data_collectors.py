@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+from io import BytesIO
 
 from backend.db_operations import DbOperations
 
@@ -22,12 +23,18 @@ class DataCollectors:
 
     plot_player_activity(start_dt: datetime, end_dt: datetime, timestamps: list[datetime])
         Plots a bar chart of player activity counts across time intervals.
+
+    gui_plot_player_activity(start_dt: datetime, end_dt: datetime, timestamps: list[datetime]) -> BytesIO
+        Prepares player activity chart as a PNG image (for GUI embedding/use).
     """
-    def __init__(self):
+
+    def __init__(self,start_dt,end_dt):
         self.db_name = "mgspy"
         self.interval_minutes = 1
+        self.start_dt = start_dt
+        self.end_dt = end_dt
 
-    def get_player_activity(self, nick: str, start_dt: datetime, end_dt: datetime) -> list[datetime] | None:
+    def get_player_activity(self, nick: str) -> list[datetime] | None:
         """
         Retrieve player activity timestamps for a specific user (by nick) between two dates.
 
@@ -35,10 +42,6 @@ class DataCollectors:
         ----------
         nick : str
             The nickname of the player.
-        start_dt : datetime
-            The start datetime for the query range (inclusive).
-        end_dt : datetime
-            The end datetime for the query range (exclusive).
 
         Returns
         -------
@@ -66,7 +69,7 @@ class DataCollectors:
 
         # 2: Get activity records for this profile/char in the given interval
         where_clause = "profile = %s AND char = %s AND datetime >= %s AND datetime < %s"
-        params = (profile, char, start_dt, end_dt)
+        params = (profile, char, self.start_dt, self.end_dt)
         tuples = db.select_data(
             db_connection=connection,
             table="activity_data",
@@ -77,16 +80,12 @@ class DataCollectors:
         timestamps = [dt for _, _, dt in tuples]
         return timestamps
 
-    def plot_player_activity(self, start_dt: datetime, end_dt: datetime, timestamps: list[datetime]):
+    def plot_player_activity(self, timestamps: list[datetime]):
         """
         Plot player activity as a bar chart of counts per interval between start_dt and end_dt.
 
         Parameters
         ----------
-        start_dt : datetime
-            The start datetime for the plot range (inclusive).
-        end_dt : datetime
-            The end datetime for the plot range (exclusive).
         timestamps : list[datetime]
             List of player activity timestamps, typically as returned by get_player_activity.
 
@@ -95,27 +94,74 @@ class DataCollectors:
         None
         """
         intervals = []
-        current = start_dt
-        while current < end_dt:
+        current = self.start_dt
+        while current < self.end_dt:
             intervals.append(current)
             current += timedelta(minutes=self.interval_minutes)
-        intervals.append(end_dt)
+        intervals.append(self.end_dt)
 
-        activity_counts = [0] * (len(intervals) - 1)
+        activity_presence = [0] * (len(intervals) - 1)
         ts_idx = 0
         timestamps.sort()
         for i in range(len(intervals) - 1):
             while ts_idx < len(timestamps) and intervals[i] <= timestamps[ts_idx] < intervals[i + 1]:
-                activity_counts[i] += 1
+                activity_presence[i] = 1
                 ts_idx += 1
 
-        # Plotting
         interval_labels = [dt.strftime('%H:%M') for dt in intervals[:-1]]
         plt.figure(figsize=(12, 5))
-        plt.bar(interval_labels, activity_counts, width=0.8, align='center')
+        plt.bar(interval_labels, activity_presence, width=0.8, align='center')
         plt.xticks(rotation=45)
+        plt.yticks([0, 1])
         plt.xlabel('Time interval (minutes)')
-        plt.ylabel('Activity count')
-        plt.title(f'Activity from {start_dt} to {end_dt}')
+        plt.ylabel('Activity presence (0 or 1)')
+        plt.title(f'Activity from {self.start_dt} to {self.end_dt}')
         plt.tight_layout()
         plt.show()
+
+    def gui_plot_player_activity(self, timestamps: list[datetime]) -> BytesIO:
+        """
+        Plot player activity as a bar chart and save as a PNG image in a BytesIO object (for GUI use).
+
+        Parameters
+        ----------
+        timestamps : list[datetime]
+            List of player activity timestamps, typically as returned by get_player_activity.
+
+        Returns
+        -------
+        BytesIO
+            An in-memory file-like object containing the PNG image data of the chart.
+        """
+        intervals = []
+        current = self.start_dt
+        while current < self.end_dt:
+            intervals.append(current)
+            current += timedelta(minutes=self.interval_minutes)
+        intervals.append(self.end_dt)
+
+        activity_presence = [0] * (len(intervals) - 1)
+        ts_idx = 0
+        timestamps.sort()
+        for i in range(len(intervals) - 1):
+            while ts_idx < len(timestamps) and intervals[i] <= timestamps[ts_idx] < intervals[i + 1]:
+                activity_presence[i] = 1
+                ts_idx += 1
+
+        interval_labels = [dt.strftime('%H:%M') for dt in intervals[:-1]]
+        fig, ax = plt.subplots(figsize=(12, 5))
+        ax.bar(range(len(interval_labels)), activity_presence, width=0.8, align='center')
+
+        ax.set_xticks(range(len(interval_labels)))
+        ax.set_xticklabels(interval_labels, rotation=45)
+        ax.set_yticks([0, 1])
+        ax.set_xlabel('Time interval (minutes)')
+        ax.set_ylabel('Activity presence (0 or 1)')
+        ax.set_title(f'Activity from {self.start_dt} to {self.end_dt}')
+
+        plt.tight_layout()
+        img = BytesIO()
+        plt.savefig(img, format='png', dpi=100)
+        plt.close(fig)
+        img.seek(0)
+        return img
