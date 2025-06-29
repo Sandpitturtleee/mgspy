@@ -1,80 +1,126 @@
 import multiprocessing
 import time
+from multiprocessing import Event
 
 from backend.db_operations import DbOperations
 from backend.web_scrapper import WebScrapper
 
 
 class AppProcesses:
-    def data_producer1(self,profiles, control_event):
-        # Simulate data production every minute
-        web_scrapper = WebScrapper(url="https://www.margonem.pl/stats")
+    """
+    A class to manage the processes for scraping and saving player activity data.
+
+    Attributes:
+    ----------
+    url : str
+        The URL to scrape data from.
+    db_name : str
+        The name of the database to store data in.
+    scrap_player_activity_interval : int
+        The interval (in seconds) between scraping operations.
+    save_player_activity_interval : int
+        The interval (in seconds) between save operations.
+    app_run_time : int
+        The total run time (in seconds) for the application.
+
+    Methods:
+    -------
+    scrap_player_activity(scrapped_player_activity: list[dict], control_event: Event)
+        Scrape player activity data from a given URL at specified intervals.
+
+    save_player_activity(scrapped_player_activity: list[dict], control_event: Event)
+        Save scraped player activity data into a database at specified intervals.
+
+    process_app()
+        Start and manage the scraping and saving processes.
+    """
+    def __init__(self, url, db_name):
+        self.url = url
+        self.db_name = db_name
+        self.scrap_player_activity_interval = 60
+        self.save_player_activity_interval = 120
+        self.app_run_time = 3600
+
+    def scrap_player_activity(self, scrapped_player_activity: list[dict], control_event: Event):
+        """
+        Scrape player activity data from the web scrapper and append it to the list.
+
+        Parameters:
+        ----------
+        scrapped_player_activity : list[dict]
+            A shared list to store scraped player activity data.
+        control_event : Event
+            An event to control and terminate the scraping process.
+
+        Returns:
+        -------
+        None
+        """
+        interval = self.scrap_player_activity_interval
+        web_scrapper = WebScrapper(url=self.url)
         while not control_event.is_set():
             timestamp = time.time()
-            #shared_dict[timestamp] = {"value": f"SampleData_{timestamp}"}
-            #print(shared_dict)
-            profiles, elapsed_time = web_scrapper.scrap_character_activity()
+            activity, elapsed_time = web_scrapper.scrap_character_activity()
+            scrapped_player_activity += activity
             print(f"Scrapped data at {time.ctime(timestamp)}")
-            print(profiles)
-            print(elapsed_time)
-            if 60-elapsed_time > 0:
-                time.sleep(60-elapsed_time)
+            if interval - elapsed_time > 0:
+                time.sleep(interval - elapsed_time)
 
+    def save_player_activity(self, scrapped_player_activity: list[dict], control_event: Event):
+        """
+        Save player activity data into a database from the list at specified intervals.
 
-    def data_consumer1(self,profiles, control_event):
-        # Simulate reading from the dictionary every 10 minutes and saving to a "database"
+        Parameters:
+        ----------
+        scrapped_player_activity : list[dict]
+            A shared list containing player activity data to be saved.
+        control_event : Event
+            An event to control and terminate the saving process.
+
+        Returns:
+        -------
+        None
+        """
+        interval = self.save_player_activity_interval
+        db = DbOperations(db_name=self.db_name)
+        connection = db.connect_to_db()
         while not control_event.is_set():
-            time.sleep(30)  # Wait for 10 minutes
-            # Mimic saving to a database
-            print(f"Consuming data at {time.ctime()}")
-            all_data = list(profiles.items())
-            for timestamp, data in all_data:
-                print(f"Saving data: {data}")
-                print(profiles)
-                del profiles[timestamp]
-                print(profiles)
-
-    def data_producer(self,all_profiles, control_event):
-        web_scrapper = WebScrapper(url="https://www.margonem.pl/stats")
-        while not control_event.is_set():
-            timestamp = time.time()
-            profiles, elapsed_time = web_scrapper.scrap_character_activity()
-            all_profiles += profiles
-            print(f"Scrapped data at {time.ctime(timestamp)}")
-            if 60-elapsed_time > 0:
-                time.sleep(60-elapsed_time)
-
-    def data_consumer(self,all_profiles, control_event):
-        db = DbOperations()
-        connection = db.connect_to_db("mgspy")
-        while not control_event.is_set():
-            time.sleep(600)  # Wait for 10 minutes
-            # Mimic saving to a database
+            time.sleep(interval)
             print(f"Saved data at {time.ctime()}")
-            db.insert_data(connection, all_profiles)
-            all_profiles[:] = []
-
-
-
+            db.insert_data(connection, scrapped_player_activity)
+            scrapped_player_activity[:] = []
 
     def process_app(self):
+        """
+        Manages and runs the scraping and saving processes for the scraper application.
+
+        The method creates two multiprocessing processes for scraping and saving player activities
+        data running in parallel. These processes are controlled to run for a specified time before being
+        gracefully terminated.
+
+        Returns:
+        -------
+        None
+        """
         manager = multiprocessing.Manager()
-        all_profiles = manager.list()  # Shared dictionary for data exchange
+        scrapped_player_activity = manager.list()
         control_event = multiprocessing.Event()
 
-        producer_process = multiprocessing.Process(target=self.data_producer, args=(all_profiles, control_event))
-        consumer_process = multiprocessing.Process(target=self.data_consumer, args=(all_profiles, control_event))
+        scrap_player_activity_process = multiprocessing.Process(target=self.scrap_player_activity,
+                                                                args=(scrapped_player_activity, control_event))
+        save_player_activity_process = multiprocessing.Process(target=self.save_player_activity,
+                                                               args=(scrapped_player_activity, control_event))
 
         # Start the processes
-        producer_process.start()
-        consumer_process.start()
+        scrap_player_activity_process.start()
+        save_player_activity_process.start()
 
         # Allow execution for a set time, then stop
         try:
-            time.sleep(3840)  # Let the processes run for an hour
+            time.sleep(self.app_run_time)  # Let the processes run for an hour
         finally:
             # Signal processes to stop
             control_event.set()
-            producer_process.join()
-            consumer_process.join()
+            scrap_player_activity_process.join()
+            save_player_activity_process.join()
             print("Processes terminated.")

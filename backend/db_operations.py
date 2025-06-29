@@ -1,10 +1,13 @@
 import psycopg2
 class DbOperations:
-    def connect_to_db(self,db_name):
+    def __init__(self, db_name):
+        self.db_name = db_name
+
+    def connect_to_db(self):
         try:
             # Establish a connection to the database
             connection = psycopg2.connect(
-                dbname=db_name,
+                dbname=self.db_name,
                 user="sold",
                 password=None,
                 host="localhost"
@@ -98,8 +101,8 @@ class DbOperations:
 
 
 if __name__ == "__main__":
-    db = DbOperations()
-    connection = db.connect_to_db("mgspy")
+    db = DbOperations(db_name="mgspy")
+    connection = db.connect_to_db()
     try:
 
         # Sample data
