@@ -11,7 +11,7 @@ class WebScrapper:
 
     Attributes
     ----------
-    url : str
+    stats_url : str
         The main URL to scrape the character activity from.
     profile_url : str
         The base URL used to scrape detailed profile data for each character.
@@ -119,6 +119,7 @@ class WebScrapper:
         """
         player_data = []
         for profile_data in player_activity:
+            time.sleep(5)
             profile = profile_data.get('profile')
             char = profile_data.get('char')
             if profile and char:
@@ -138,5 +139,6 @@ class WebScrapper:
                                 'world': data_world,
                             }
                             player_data.append(character_info)
+        print("Profile data scrapped")
 
         return player_data

@@ -17,3 +17,12 @@ mgspy-# \q
 
 brew services start postgresql
 brew services restart postgresql
+
+CREATE TABLE profile_data (
+    profile INTEGER NOT NULL,
+    char INTEGER NOT NULL,
+    nick VARCHAR(255),
+    lvl INTEGER,
+    clan VARCHAR(255),
+    world VARCHAR(255)
+);

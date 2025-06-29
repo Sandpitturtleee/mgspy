@@ -86,8 +86,44 @@ class AppProcesses:
         while not control_event.is_set():
             time.sleep(interval)
             print(f"Saved data at {time.ctime()}")
-            db.insert_data(connection, scrapped_player_activity)
+            db.insert_activity_data(db_connection=connection, player_activity=scrapped_player_activity)
             scrapped_player_activity[:] = []
+
+    def scrap_and_save_profile_data(self):
+        """
+        Scrapes profile data for unique profiles found in 'activity_data' table and saves them to the database.
+
+        Steps:
+        1. Connect to the database using DbOperations.
+        2. Retrieve all player activity records from 'activity_data'.
+        3. Format activity data into dicts and ensure uniqueness by 'profile'.
+        4. Use WebScrapper to scrape profile data for these unique profiles.
+        5. Insert the scraped profile data into the 'profile_data' table.
+
+        Returns
+        -------
+        None
+        """
+        db = DbOperations(self.db_name)
+        web_scrapper = WebScrapper()
+        connection = db.connect_to_db()
+        player_activity = db.select_data(connection, table='activity_data')
+        result = [
+            {
+                'profile': str(profile),
+                'char': str(char),
+                'datetime': dt.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            for profile, char, dt in player_activity
+        ]
+
+        unique_profiles = {}
+        for entry in result:
+            if entry['profile'] not in unique_profiles:
+                unique_profiles[entry['profile']] = entry
+        unique_player_activity = list(unique_profiles.values())
+        profile_data = web_scrapper.scrap_profile_data(player_activity=unique_player_activity)
+        db.insert_profile_data(db_connection=connection, profile_data=profile_data)
 
 
     def process_app(self):
