@@ -95,8 +95,7 @@ class AppProcesses:
         Manages and runs the scraping and saving processes for the scraper application.
 
         The method creates two multiprocessing processes for scraping and saving player activities
-        data running in parallel. These processes are controlled to run for a specified time before being
-        gracefully terminated.
+        data running in parallel. These processes are controlled to run for a specified time before being terminated.
 
         Returns:
         -------
