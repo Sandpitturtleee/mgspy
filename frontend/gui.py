@@ -1,6 +1,7 @@
-from nicegui import ui
-from datetime import datetime
 import base64
+from datetime import datetime
+
+from nicegui import ui
 
 from frontend.data_collectors import DataCollectors
 
@@ -30,13 +31,19 @@ class Gui:
     make_plot()
         Collect activity data for the entered nickname and update the plot image area.
     """
+
     def __init__(self):
         ui.page_title("mgspy")
-        with ui.column().classes('w-full items-center justify-center').style('min-height: 100vh'):
-            self.input_nick = ui.input('Nick', placeholder='Enter player nick').style('width: 400px; font-size: 1.2rem')
-            ui.button('Show Activity', on_click=self.make_plot).props('size=lg')
+        with ui.column().classes("w-full items-center justify-center").style(
+            "min-height: 100vh"
+        ):
+            self.input_nick = ui.input("Nick", placeholder="Enter player nick").style(
+                "width: 400px; font-size: 1.2rem"
+            )
+            ui.button("Show Activity", on_click=self.make_plot).props("size=lg")
             self.plot_area = ui.image().style(
-                'width: 900px; height: 400px; margin-top: 40px; background: #fafafa; border: 1px solid #ddd;')
+                "width: 900px; height: 400px; margin-top: 40px; background: #fafafa; border: 1px solid #ddd;"
+            )
         self.start_dt = datetime(2025, 6, 28, 11, 0, 0)
         self.end_dt = datetime(2025, 6, 28, 12, 0, 0)
         self.collector = DataCollectors(start_dt=self.start_dt, end_dt=self.end_dt)
@@ -57,15 +64,14 @@ class Gui:
         nick = self.input_nick.value.strip()
         if not nick:
             self.plot_area.source = None
-            ui.notify('Please enter a nick!', color='red')
+            ui.notify("Please enter a nick!", color="red")
             return
         timestamps = self.collector.get_player_activity(nick=nick)
         if not timestamps:
             self.plot_area.source = None
-            ui.notify(f"No activity found for nick {nick}", color='red')
+            ui.notify(f"No activity found for nick {nick}", color="red")
             return
         img = self.collector.gui_plot_player_activity(timestamps=timestamps)
-        img_b64 = base64.b64encode(img.read()).decode('ascii')
-        data_url = f'data:image/png;base64,{img_b64}'
+        img_b64 = base64.b64encode(img.read()).decode("ascii")
+        data_url = f"data:image/png;base64,{img_b64}"
         self.plot_area.source = data_url
-

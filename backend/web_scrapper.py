@@ -1,8 +1,9 @@
 import re
+import time
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
-import time
 
 
 class WebScrapper:
@@ -24,6 +25,7 @@ class WebScrapper:
     scrap_profile_data(player_activity: list[dict]) -> list[dict]
         Scrape detailed profile data for the player activity list.
     """
+
     def __init__(self):
         self.stats_url = "https://www.margonem.pl/stats"
         self.profile_url = "https://www.margonem.pl/profile/view"
@@ -51,34 +53,38 @@ class WebScrapper:
         try:
             response = requests.get(self.stats_url, timeout=30)
             elapsed_time = time.time() - start_time
-            soup = BeautifulSoup(response.text, 'html.parser')
-            outer_div = soup.find('div', class_='light-brown-box news-container no-footer berufs-popup')
+            soup = BeautifulSoup(response.text, "html.parser")
+            outer_div = soup.find(
+                "div", class_="light-brown-box news-container no-footer berufs-popup"
+            )
             if not outer_div:
                 raise Exception("outer_div not found")
-            inner_div = outer_div.find('div', class_='news-body')
+            inner_div = outer_div.find("div", class_="news-body")
             if not inner_div:
                 raise Exception("inner_div not found")
 
             current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            for a_tag in inner_div.find_all('a', class_='statistics-rank'):
-                profile_link = a_tag['href']
+            for a_tag in inner_div.find_all("a", class_="statistics-rank"):
+                profile_link = a_tag["href"]
 
-                profile_match = re.search(r"/profile/view,(\d+)#char_(\d+)", profile_link)
+                profile_match = re.search(
+                    r"/profile/view,(\d+)#char_(\d+)", profile_link
+                )
                 if profile_match:
                     profile_number = profile_match.group(1)
                     char_number = profile_match.group(2)
 
-                    player_activity.append({
-                        'profile': profile_number,
-                        'char': char_number,
-                        'datetime': current_datetime
-                    })
+                    player_activity.append(
+                        {
+                            "profile": profile_number,
+                            "char": char_number,
+                            "datetime": current_datetime,
+                        }
+                    )
             if not player_activity:
-                player_activity.append({
-                    'profile': 0,
-                    'char': 0,
-                    'datetime': current_datetime
-                })
+                player_activity.append(
+                    {"profile": 0, "char": 0, "datetime": current_datetime}
+                )
 
         except Exception as e:
             elapsed_time = time.time() - start_time
@@ -120,23 +126,23 @@ class WebScrapper:
         player_data = []
         for profile_data in player_activity:
             time.sleep(5)
-            profile = profile_data.get('profile')
-            char = profile_data.get('char')
+            profile = profile_data.get("profile")
+            char = profile_data.get("char")
             if profile and char:
                 constructed_url = f"{self.profile_url},{profile}#char_{char},berufs"
                 response = requests.get(constructed_url)
-                soup = BeautifulSoup(response.text, 'html.parser')
-                character_list_div = soup.find('div', class_='character-list')
+                soup = BeautifulSoup(response.text, "html.parser")
+                character_list_div = soup.find("div", class_="character-list")
                 if character_list_div:
-                    for li in character_list_div.find_all('li', class_='char-row'):
-                        data_world = li.get('data-world', '')
-                        if data_world and data_world.startswith('#berufs'):
+                    for li in character_list_div.find_all("li", class_="char-row"):
+                        data_world = li.get("data-world", "")
+                        if data_world and data_world.startswith("#berufs"):
                             character_info = {
-                                'profile': profile,
-                                'char': li.get('data-id', ''),
-                                'nick': li.get('data-nick', ''),
-                                'lvl': li.get('data-lvl', ''),
-                                'world': data_world,
+                                "profile": profile,
+                                "char": li.get("data-id", ""),
+                                "nick": li.get("data-nick", ""),
+                                "lvl": li.get("data-lvl", ""),
+                                "world": data_world,
                             }
                             player_data.append(character_info)
         print("Profile data scrapped")

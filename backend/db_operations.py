@@ -1,6 +1,8 @@
+import getpass
+
 import psycopg2
 from psycopg2.extensions import connection
-import getpass
+
 
 class DbOperations:
     """
@@ -39,10 +41,7 @@ class DbOperations:
         try:
             # Establish a connection to the database
             connection = psycopg2.connect(
-                dbname=self.db_name,
-                user=self.user,
-                password=None,
-                host="localhost"
+                dbname=self.db_name, user=self.user, password=None, host="localhost"
             )
 
         except Exception as e:
@@ -66,11 +65,7 @@ class DbOperations:
         """
         with db_connection.cursor() as cursor:
             for data in player_activity:
-                values = (
-                    int(data['profile']),
-                    int(data['char']),
-                    data['datetime']
-                )
+                values = (int(data["profile"]), int(data["char"]), data["datetime"])
                 cursor.execute(insert_query, values)
 
             db_connection.commit()
@@ -93,20 +88,26 @@ class DbOperations:
         with db_connection.cursor() as cursor:
             for data in profile_data:
                 values = (
-                    int(data['profile']),
-                    int(data['char']),
-                    data.get('nick'),
-                    int(data['lvl']) if data.get('lvl') is not None else None,
-                    data.get('clan'),
-                    data.get('world')
+                    int(data["profile"]),
+                    int(data["char"]),
+                    data.get("nick"),
+                    int(data["lvl"]) if data.get("lvl") is not None else None,
+                    data.get("clan"),
+                    data.get("world"),
                 )
                 cursor.execute(insert_query, values)
 
             db_connection.commit()
             print("Profile data inserted successfully.")
 
-    def select_data(self, db_connection, table: str, columns: str = '*', where_clause: str = None,
-                    params: tuple = None):
+    def select_data(
+        self,
+        db_connection,
+        table: str,
+        columns: str = "*",
+        where_clause: str = None,
+        params: tuple = None,
+    ):
         """
         Select data from a PostgreSQL table.
 
@@ -136,7 +137,9 @@ class DbOperations:
             print(f"{len(results)} rows selected from '{table}'.")
             return results
 
-    def delete_data(self, db_connection, table: str, where_clause: str = None, params: tuple = None):
+    def delete_data(
+        self, db_connection, table: str, where_clause: str = None, params: tuple = None
+    ):
         """
         Delete data from a PostgreSQL table.
 

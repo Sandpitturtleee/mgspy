@@ -1,6 +1,7 @@
-import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from io import BytesIO
+
+import matplotlib.pyplot as plt
 
 from backend.db_operations import DbOperations
 
@@ -28,7 +29,7 @@ class DataCollectors:
         Prepares player activity chart as a PNG image (for GUI embedding/use).
     """
 
-    def __init__(self,start_dt,end_dt):
+    def __init__(self, start_dt, end_dt):
         self.db_name = "mgspy"
         self.interval_minutes = 1
         self.start_dt = start_dt
@@ -59,7 +60,7 @@ class DataCollectors:
             table="profile_data",
             columns="profile, char",
             where_clause="nick = %s",
-            params=(nick,)
+            params=(nick,),
         )
 
         if not profile_char_rows:
@@ -75,7 +76,7 @@ class DataCollectors:
             table="activity_data",
             columns="profile, char, datetime",
             where_clause=where_clause,
-            params=params
+            params=params,
         )
         timestamps = [dt for _, _, dt in tuples]
         return timestamps
@@ -104,18 +105,21 @@ class DataCollectors:
         ts_idx = 0
         timestamps.sort()
         for i in range(len(intervals) - 1):
-            while ts_idx < len(timestamps) and intervals[i] <= timestamps[ts_idx] < intervals[i + 1]:
+            while (
+                ts_idx < len(timestamps)
+                and intervals[i] <= timestamps[ts_idx] < intervals[i + 1]
+            ):
                 activity_presence[i] = 1
                 ts_idx += 1
 
-        interval_labels = [dt.strftime('%H:%M') for dt in intervals[:-1]]
+        interval_labels = [dt.strftime("%H:%M") for dt in intervals[:-1]]
         plt.figure(figsize=(12, 5))
-        plt.bar(interval_labels, activity_presence, width=0.8, align='center')
+        plt.bar(interval_labels, activity_presence, width=0.8, align="center")
         plt.xticks(rotation=45)
         plt.yticks([0, 1])
-        plt.xlabel('Time interval (minutes)')
-        plt.ylabel('Activity presence (0 or 1)')
-        plt.title(f'Activity from {self.start_dt} to {self.end_dt}')
+        plt.xlabel("Time interval (minutes)")
+        plt.ylabel("Activity presence (0 or 1)")
+        plt.title(f"Activity from {self.start_dt} to {self.end_dt}")
         plt.tight_layout()
         plt.show()
 
@@ -144,24 +148,29 @@ class DataCollectors:
         ts_idx = 0
         timestamps.sort()
         for i in range(len(intervals) - 1):
-            while ts_idx < len(timestamps) and intervals[i] <= timestamps[ts_idx] < intervals[i + 1]:
+            while (
+                ts_idx < len(timestamps)
+                and intervals[i] <= timestamps[ts_idx] < intervals[i + 1]
+            ):
                 activity_presence[i] = 1
                 ts_idx += 1
 
-        interval_labels = [dt.strftime('%H:%M') for dt in intervals[:-1]]
+        interval_labels = [dt.strftime("%H:%M") for dt in intervals[:-1]]
         fig, ax = plt.subplots(figsize=(12, 5))
-        ax.bar(range(len(interval_labels)), activity_presence, width=0.8, align='center')
+        ax.bar(
+            range(len(interval_labels)), activity_presence, width=0.8, align="center"
+        )
 
         ax.set_xticks(range(len(interval_labels)))
         ax.set_xticklabels(interval_labels, rotation=45)
         ax.set_yticks([0, 1])
-        ax.set_xlabel('Time interval (minutes)')
-        ax.set_ylabel('Activity presence (0 or 1)')
-        ax.set_title(f'Activity from {self.start_dt} to {self.end_dt}')
+        ax.set_xlabel("Time interval (minutes)")
+        ax.set_ylabel("Activity presence (0 or 1)")
+        ax.set_title(f"Activity from {self.start_dt} to {self.end_dt}")
 
         plt.tight_layout()
         img = BytesIO()
-        plt.savefig(img, format='png', dpi=100)
+        plt.savefig(img, format="png", dpi=100)
         plt.close(fig)
         img.seek(0)
         return img

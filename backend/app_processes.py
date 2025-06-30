@@ -41,7 +41,9 @@ class AppProcesses:
         self.save_player_activity_interval = 120
         self.app_run_time = 3600
 
-    def scrap_player_activity(self, scrapped_player_activity: list[dict], control_event: Event):
+    def scrap_player_activity(
+        self, scrapped_player_activity: list[dict], control_event: Event
+    ):
         """
         Scrape player activity data from the web scrapper and append it to the list.
 
@@ -66,7 +68,9 @@ class AppProcesses:
             if interval - elapsed_time > 0:
                 time.sleep(interval - elapsed_time)
 
-    def save_player_activity(self, scrapped_player_activity: list[dict], control_event: Event):
+    def save_player_activity(
+        self, scrapped_player_activity: list[dict], control_event: Event
+    ):
         """
         Save player activity data into a database from the list at specified intervals.
 
@@ -87,7 +91,9 @@ class AppProcesses:
         while not control_event.is_set():
             time.sleep(interval)
             print(f"Saved data at {time.ctime()}")
-            db.insert_activity_data(db_connection=connection, player_activity=scrapped_player_activity)
+            db.insert_activity_data(
+                db_connection=connection, player_activity=scrapped_player_activity
+            )
             scrapped_player_activity[:] = []
 
     def scrap_and_save_profile_data(self):
@@ -108,22 +114,24 @@ class AppProcesses:
         db = DbOperations(self.db_name)
         web_scrapper = WebScrapper()
         connection = db.connect_to_db()
-        player_activity = db.select_data(connection, table='activity_data')
+        player_activity = db.select_data(connection, table="activity_data")
         result = [
             {
-                'profile': str(profile),
-                'char': str(char),
-                'datetime': dt.strftime('%Y-%m-%d %H:%M:%S')
+                "profile": str(profile),
+                "char": str(char),
+                "datetime": dt.strftime("%Y-%m-%d %H:%M:%S"),
             }
             for profile, char, dt in player_activity
         ]
 
         unique_profiles = {}
         for entry in result:
-            if entry['profile'] not in unique_profiles:
-                unique_profiles[entry['profile']] = entry
+            if entry["profile"] not in unique_profiles:
+                unique_profiles[entry["profile"]] = entry
         unique_player_activity = list(unique_profiles.values())
-        profile_data = web_scrapper.scrap_profile_data(player_activity=unique_player_activity)
+        profile_data = web_scrapper.scrap_profile_data(
+            player_activity=unique_player_activity
+        )
         db.insert_profile_data(db_connection=connection, profile_data=profile_data)
 
     def process_app(self):
@@ -141,10 +149,14 @@ class AppProcesses:
         scrapped_player_activity = manager.list()
         control_event = multiprocessing.Event()
 
-        scrap_player_activity_process = multiprocessing.Process(target=self.scrap_player_activity,
-                                                                args=(scrapped_player_activity, control_event))
-        save_player_activity_process = multiprocessing.Process(target=self.save_player_activity,
-                                                               args=(scrapped_player_activity, control_event))
+        scrap_player_activity_process = multiprocessing.Process(
+            target=self.scrap_player_activity,
+            args=(scrapped_player_activity, control_event),
+        )
+        save_player_activity_process = multiprocessing.Process(
+            target=self.save_player_activity,
+            args=(scrapped_player_activity, control_event),
+        )
 
         # Start the processes
         scrap_player_activity_process.start()
