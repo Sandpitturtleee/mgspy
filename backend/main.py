@@ -5,4 +5,4 @@ if __name__ == '__main__':
     app.process_app()
 
     #Only once already done
-    app.scrap_and_save_profile_data()
+    # app.scrap_and_save_profile_data()

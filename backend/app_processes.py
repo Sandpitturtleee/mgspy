@@ -34,6 +34,7 @@ class AppProcesses:
     process_app()
         Start and manage the scraping and saving processes.
     """
+
     def __init__(self, db_name):
         self.db_name = db_name
         self.scrap_player_activity_interval = 60
@@ -124,7 +125,6 @@ class AppProcesses:
         unique_player_activity = list(unique_profiles.values())
         profile_data = web_scrapper.scrap_profile_data(player_activity=unique_player_activity)
         db.insert_profile_data(db_connection=connection, profile_data=profile_data)
-
 
     def process_app(self):
         """
