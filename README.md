@@ -47,6 +47,29 @@ docker compose up --build
 - Luxvyu
 - berufs engineer
 ---
+### Local Setup
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/Sandpitturtleee/mgspy.git
+cd mgspy
+```
+**2. Install dependencies**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+```
+**3. Running Backend**
+```bash
+cd backend
+python3 main.py
+```
+**4. Running Frontend**
+```bash
+cd frontend
+python3 main.py
+```
 
 ## Project Structure
  * [backend](./backend)
