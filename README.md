@@ -24,7 +24,7 @@ It consists of a PostgreSQL database backend, backend utilities, and a NiceGUI-b
 
 ---
 ### Docker Setup
-Docker has 3 images - 
+
 **1. Clone the repository**
 ```bash
 git clone https://github.com/Sandpitturtleee/mgspy.git
