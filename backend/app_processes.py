@@ -2,8 +2,8 @@ import multiprocessing
 import time
 from multiprocessing import Event
 
-from backend.db_operations import DbOperations
-from backend.web_scrapper import WebScrapper
+from db_operations import DbOperations
+from web_scrapper import WebScrapper
 
 
 class AppProcesses:
@@ -36,9 +36,17 @@ class AppProcesses:
     """
 
     def __init__(self, db_name):
+        """
+        Initialize the process manager.
+
+        Parameters
+        ----------
+        db_name : str
+            Name of the database into which scraped activity data will be saved.
+        """
         self.db_name = db_name
         self.scrap_player_activity_interval = 60
-        self.save_player_activity_interval = 120
+        self.save_player_activity_interval = 600
         self.app_run_time = 3600
 
     def scrap_player_activity(

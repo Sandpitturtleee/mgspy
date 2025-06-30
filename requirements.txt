@@ -13,6 +13,6 @@ tomlkit==0.13.3
 
 requests~=2.32.4
 beautifulsoup4~=4.12.3
-psycopg2~=2.9.10
+psycopg2-binary~=2.9.10
 nicegui~=2.20.0
 matplotlib~=3.8.4

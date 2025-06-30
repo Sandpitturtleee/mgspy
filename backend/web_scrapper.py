@@ -27,6 +27,9 @@ class WebScrapper:
     """
 
     def __init__(self):
+        """
+        Initialize the WebScrapper for Margonem web game.
+        """
         self.stats_url = "https://www.margonem.pl/stats"
         self.profile_url = "https://www.margonem.pl/profile/view"
 

@@ -1,9 +1,8 @@
 import base64
 from datetime import datetime
 
+from data_collectors import DataCollectors
 from nicegui import ui
-
-from frontend.data_collectors import DataCollectors
 
 
 class Gui:
@@ -33,6 +32,9 @@ class Gui:
     """
 
     def __init__(self):
+        """
+        Initialize the GUI, layout, and default date range for activity plots.
+        """
         ui.page_title("mgspy")
         with ui.column().classes("w-full items-center justify-center").style(
             "min-height: 100vh"

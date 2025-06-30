@@ -1,4 +1,5 @@
-import getpass
+import os
+import time
 
 import psycopg2
 from psycopg2.extensions import connection
@@ -8,46 +9,94 @@ class DbOperations:
     """
     Handles basic PostgreSQL operations using psycopg2.
 
+    This class provides methods for connecting to a PostgreSQL database, inserting activity and profile data,
+    retrieving and deleting records from tables, with connection parameters controlled via environment variables.
+
+    Attributes
+    ----------
+    db_name : str
+        Name of the PostgreSQL database.
+    user : str
+        Database username.
+    password : str
+        Database user's password.
+    host : str
+        Database host address.
+    port : int
+        Port on which the database server is running.
+
     Methods
     -------
-    connect_to_db()
-        Connects to the specified PostgreSQL database.
-
+    connect_to_db(max_retries=10, delay=2) -> connection
+        Connects to the PostgreSQL database with retries.
     insert_activity_data(db_connection, player_activity)
         Inserts a list of activity dictionaries into the activity_data table.
-
     insert_profile_data(db_connection, player_data)
         Inserts a list of profile dictionaries into the profile_data table.
-
     select_data(db_connection, table, columns='*', where_clause=None, params=None)
-        Selects data from the specified table and columns, with an optional WHERE clause.
-
+        Selects data from a table.
     delete_data(db_connection, table, where_clause=None, params=None)
-        Deletes data from the specified table using an optional WHERE clause.
+        Deletes data from a table.
     """
 
-    def __init__(self, db_name):
-        self.db_name = db_name
-        self.user = getpass.getuser()
-
-    def connect_to_db(self) -> connection:
+    def __init__(self, db_name=None):
         """
-        Establish a connection to the PostgreSQL database.
+        Create a database operations instance with connection parameters
+        set via environment variables or defaults.
+
+        Parameters
+        ----------
+        db_name : str, optional
+            Database name (default: taken from environment variable DB_NAME or set to 'mgspy').
+        """
+        self.db_name = db_name or os.environ.get("DB_NAME", "mgspy")
+        self.user = os.environ.get("DB_USER", "sold")
+        self.password = os.environ.get("DB_PASS", "mgspypass")
+        self.host = os.environ.get("DB_HOST", "localhost")
+        self.port = int(os.environ.get("DB_PORT", 5432))
+
+    def connect_to_db(self, max_retries=10, delay=2) -> connection:
+        """
+        Establish a connection to the PostgreSQL database, retrying if the operation fails.
+
+        Connection parameters can be set with the following environment variables:
+        - DB_HOST (default: 'localhost')
+        - DB_NAME (default: 'mgspy')
+        - DB_USER (default: 'sold')
+        - DB_PASS (default: 'mgspypass')
+        - DB_PORT (default: 5432)
+
+        Parameters
+        ----------
+        max_retries : int, optional
+            Number of retry attempts before failing (default: 10).
+        delay : int or float, optional
+            Number of seconds to wait between retries (default: 2).
 
         Returns
         -------
-        connection : psycopg2 connection object
+        connection : psycopg2.extensions.connection
+            A connection object to the PostgreSQL database.
+
+        Raises
+        ------
+        Exception
+            If the connection cannot be established after the given retries.
         """
-        try:
-            # Establish a connection to the database
-            connection = psycopg2.connect(
-                dbname=self.db_name, user=self.user, password=None, host="localhost"
-            )
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
-
-        return connection
+        for i in range(max_retries):
+            try:
+                conn = psycopg2.connect(
+                    dbname=self.db_name,
+                    user=self.user,
+                    password=self.password,
+                    host=self.host,
+                    port=self.port,
+                )
+                return conn
+            except psycopg2.OperationalError as e:
+                print(f"DB not ready (attempt {i + 1}/{max_retries}): {e}")
+                time.sleep(delay)
+        raise Exception("Database not available after retries!")
 
     def insert_activity_data(self, db_connection, player_activity: list[dict]):
         """
@@ -78,7 +127,7 @@ class DbOperations:
         Parameters
         ----------
         db_connection : psycopg2 connection object
-        player_data : list of dict
+        profile_data : list of dict
             Each dict should have keys: 'profile', 'char', 'nick', 'lvl', 'clan', 'world'
         """
         insert_query = """

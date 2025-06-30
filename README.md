@@ -10,8 +10,42 @@ It consists of a PostgreSQL database backend, backend utilities, and a NiceGUI-b
 - Stores player profile and activity data in PostgreSQL
 - Backend utilities for querying and analyzing player activity
 - Modern interactive frontend to view player statistics and activity plots
-- Docker-ready deployment (optional)
+- Docker-ready deployment
+---
 
+## Getting Started
+
+### Requirements
+
+- Python 3.11+
+- PostgreSQL 15+
+- [NiceGUI](https://nicegui.io/)
+- Docker (for full setup with db)
+
+---
+### Docker Setup
+Docker has 3 images - 
+**1. Clone the repository**
+```bash
+git clone https://github.com/Sandpitturtleee/mgspy.git
+cd mgspy
+```
+**2.  Build and start all services**
+```bash
+docker compose up --build
+```
+**3. Services**
+
+- Frontend GUI: http://localhost:8080 
+- Backend: runs in background
+- Database
+
+**4. GUI input examples**
+- Cycu Dzik
+- p gł zav dmp rc dsotm
+- Kari Mata Hari
+- Luxvyu
+- berufs engineer
 ---
 
 ## Project Structure
@@ -26,40 +60,9 @@ It consists of a PostgreSQL database backend, backend utilities, and a NiceGUI-b
    * [main.py](./frontend/main.py)
  * [.gitignore](./.gitignore)
  * [DATABASE.md](./DATABASE.md)
+ * [dbdump.sql](./dbdump.sql)
+ * [docker-compose.yml](./docker-compose.yml)
+ * [Dockerfile.backend](./Dockerfile.backend)
+ * [Dockerfile.frontend](./Dockerfile.frontend)
  * [README.md](./README.md)
  * [requirements.txt](./requirements.txt)
-
-## Getting Started
-
-### Requirements
-
-- Python 3.11+
-- PostgreSQL 15+
-- [NiceGUI](https://nicegui.io/)
-- Docker (optional)
-
----
-
-### Setup
-
-**1. Clone the repository**
-```bash
-git clone https://github.com/Sandpitturtleee/mgspy.git
-cd mgspy
-```
-**2. Install dependencies**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip3 install -r requirements.txt
-```
-**3. Running the Backend**
-```bash
-cd backend
-python3 main.py
-```
-**4. Running the Frontend**
-```bash
-cd frontend
-python3 main.py
-```

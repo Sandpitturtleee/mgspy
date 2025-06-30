@@ -30,6 +30,16 @@ class DataCollectors:
     """
 
     def __init__(self, start_dt, end_dt):
+        """
+        Initialize the data collector with a time range.
+
+        Parameters
+        ----------
+        start_dt : datetime
+            The start of the time range for activity data analysis.
+        end_dt : datetime
+            The end of the time range for activity data analysis.
+        """
         self.db_name = "mgspy"
         self.interval_minutes = 1
         self.start_dt = start_dt
