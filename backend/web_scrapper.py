@@ -1,6 +1,7 @@
 import re
 import time
 from datetime import datetime
+from typing import Tuple, List, Dict, Any
 
 import requests
 from bs4 import BeautifulSoup
@@ -33,7 +34,7 @@ class WebScrapper:
         self.stats_url = "https://www.margonem.pl/stats"
         self.profile_url = "https://www.margonem.pl/profile/view"
 
-    def scrap_character_activity(self) -> (list[dict], int):
+    def scrap_character_activity(self) -> tuple[list[dict[str, str | Any] | dict[str, int | str]], float]:
         """
         Scrape player activity data from the website.
 
@@ -92,7 +93,7 @@ class WebScrapper:
         except Exception as e:
             elapsed_time = time.time() - start_time
             print(str(e))
-            return player_activity, elapsed_time
+            # return player_activity, elapsed_time
         return player_activity, elapsed_time
 
     def scrap_profile_data(self, player_activity: list[dict]) -> list[dict]:
