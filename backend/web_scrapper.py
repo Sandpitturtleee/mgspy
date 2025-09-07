@@ -94,7 +94,6 @@ class WebScrapper:
             elapsed_time = time.time() - start_time
             print(str(e))
             # return player_activity, elapsed_time
-        print("Activity data scrapped")
         return player_activity, elapsed_time
 
     def scrap_profile_data(self, player_activity: list[dict]) -> list[dict]:
@@ -150,6 +149,4 @@ class WebScrapper:
                                 "world": data_world,
                             }
                             player_data.append(character_info)
-        print("Profile data scrapped")
-
         return player_data
