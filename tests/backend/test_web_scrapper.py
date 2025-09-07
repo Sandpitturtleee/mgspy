@@ -88,5 +88,27 @@ def test_scrap_profile_data_multiple(mocker, webscraper, player_profiles, profil
     mocker.patch('requests.get', side_effect=[mock_response1, mock_response2])
 
     result = webscraper.scrap_profile_data(player_profiles)
-    print(result)
     assert result == player_profiles_test
+
+
+def test_scrap_character_activity_real_response(webscraper):
+    player_activity, elapsed_time = webscraper.scrap_character_activity()
+
+    assert isinstance(player_activity, list)
+    assert isinstance(elapsed_time, float)
+    assert len(player_activity) >= 1
+    first = player_activity[0]
+    assert "profile" in first
+    assert "char" in first
+    assert "datetime" in first
+
+
+def test_scrap_profile_data_real_response(webscraper, player_profiles):
+    result = webscraper.scrap_profile_data(player_profiles)
+
+    assert isinstance(result, list)
+    if result:
+        first = result[0]
+        assert isinstance(first, dict)
+        for k in ("profile", "char", "nick", "lvl", "world"):
+            assert k in first
