@@ -1,89 +1,80 @@
+import datetime
+
 import pytest
 import psycopg2
-from psycopg2.extensions import connection
-from backend.db_operations import DbOperations  # <-- Replace with actual module path
+
+from backend.db_operations import DbOperations  # Assume your class is saved in db_ops.py
+from tests.data.data import player_profiles_test_db, player_activity_test_db
+
+DB_NAME_TEST = "mgspy_test"
 
 
-@pytest.fixture
-def db_ops():
-    return DbOperations()
+@pytest.fixture(scope="module")
+def db():
+    """Setup and teardown a database connection for the test session."""
+    db_ops = DbOperations(db_name=DB_NAME_TEST)
+    conn = db_ops.connect_to_db()
+    yield db_ops, conn
+    conn.close()
 
 
-def make_fake_cursor(mocker, rowcount=3, fetch_result=None):
-    mock_cursor = mocker.MagicMock()
-    mock_cursor.__enter__.return_value = mock_cursor
-    mock_cursor.fetchall.return_value = fetch_result or []
-    mock_cursor.rowcount = rowcount
-    return mock_cursor
+@pytest.fixture(autouse=True)
+def cleanup_tables(db):
+    """Cleanup tables before each test."""
+    db_ops, conn = db
+    db_ops.delete_data(conn, 'activity_data')
+    db_ops.delete_data(conn, 'profile_data')
+    yield
 
 
-def make_fake_conn(mocker, cursor=None):
-    mock_conn = mocker.MagicMock()
-    mock_conn.cursor.return_value = cursor if cursor else make_fake_cursor(mocker)
-    return mock_conn
+def test_insert_and_select_activity_data(db):
+    db_ops, conn = db
+    activity = player_activity_test_db
+    db_ops.insert_activity_data(conn, activity)
+    rows = db_ops.select_data(conn, "activity_data")
+    assert len(rows) == len(activity)
+    assert rows[0][0:3] == (7667949, 155201, datetime.datetime(2025, 1, 1, 12, 0))
+    assert rows[len(rows) - 1][:3] == (9519329, 247700, datetime.datetime(2025, 1, 1, 12, 0))
 
 
-def test_connect_to_db_success(mocker, db_ops):
-    fake_conn = "CONN"
-    mocker.patch('psycopg2.connect', return_value=fake_conn)
-    conn = db_ops.connect_to_db(max_retries=1)
-    assert conn == fake_conn
+def test_delete_activity_data(db):
+    db_ops, conn = db
+    activity = player_activity_test_db
+    db_ops.insert_activity_data(conn, activity)
+    db_ops.delete_data(conn, "activity_data", "profile = 7667949")
+    db_ops.delete_data(conn, "activity_data", "profile = 9519329")
+    rows = db_ops.select_data(conn, "activity_data")
+    assert len(rows) == len(activity) - 2
+    assert rows[0][0:3] != (7667949, 155201, datetime.datetime(2025, 1, 1, 12, 0))
+    assert rows[len(rows) - 1][:3] != (9519329, 247700, datetime.datetime(2025, 1, 1, 12, 0))
 
 
-def test_connect_to_db_retries_and_fails(mocker, db_ops):
-    mocker.patch('psycopg2.connect', side_effect=psycopg2.OperationalError)
-    with pytest.raises(Exception, match="Database not available after retries!"):
-        db_ops.connect_to_db(max_retries=2, delay=0)
+def test_insert_and_select_profile_data(db):
+    db_ops, conn = db
+    profiles = player_profiles_test_db
+    db_ops.insert_profile_data(conn, profiles)
+    rows = db_ops.select_data(conn, "profile_data")
+    assert len(rows) == len(profiles)
+    assert rows[0][:6] == (5111553, 155755, 'Charmed', 129, 'None', '#berufs')
+    assert rows[len(rows) - 1][:6] == (973998, 68470, 'łelełęłęłeł', 64, 'None', '#berufs')
 
 
-def test_insert_activity_data(mocker, db_ops):
-    fake_conn = make_fake_conn(mocker)
-    player_activity = [
-        {"profile": 5111553, "char": 155755, "datetime": "2025-01-01 12:00:00"},
-        {"profile": 973998, "char": 116256, "datetime": "2025-01-01 12:00:00"},
-    ]
-    db_ops.insert_activity_data(fake_conn, player_activity)
-    assert fake_conn.cursor.return_value.execute.call_count == len(player_activity)
-    fake_conn.commit.assert_called_once()
+def test_delete_profile_data(db):
+    db_ops, conn = db
+    profiles = player_profiles_test_db
+    db_ops.insert_profile_data(conn, profiles)
+    db_ops.delete_data(conn, "profile_data", "profile = 5111553")
+    rows = db_ops.select_data(conn, "profile_data")
+    assert len(rows) == 7
 
 
-def test_insert_profile_data(mocker, db_ops):
-    fake_conn = make_fake_conn(mocker)
-    profile_data = [
-        {'profile': '5111553', 'char': '155755', 'nick': 'Charmed', 'lvl': '129', 'world': '#berufs'},
-        {'profile': '973998', 'char': '116256', 'nick': 'Brovvar', 'lvl': '64', 'world': '#berufs'},
-    ]
-    db_ops.insert_profile_data(fake_conn, profile_data)
-    assert fake_conn.cursor.return_value.execute.call_count == len(profile_data)
-    fake_conn.commit.assert_called_once()
-
-
-def test_select_data(mocker, db_ops):
-    fake_cursor = make_fake_cursor(mocker, fetch_result=[(1, 2), (3, 4)])
-    fake_conn = make_fake_conn(mocker, cursor=fake_cursor)
-    out = db_ops.select_data(fake_conn, 'table', columns='a,b')
-    assert out == [(1, 2), (3, 4)]
-
-
-def test_select_data_with_where(mocker, db_ops):
-    fake_cursor = make_fake_cursor(mocker, fetch_result=[(1,)])
-    fake_conn = make_fake_conn(mocker, cursor=fake_cursor)
-    out = db_ops.select_data(fake_conn, 'test', columns='a', where_clause='id=%s', params=(10,))
-    fake_conn.cursor.return_value.execute.assert_called_with('SELECT a FROM test WHERE id=%s', (10,))
-    assert out == [(1,)]
-
-
-def test_delete_data(mocker, db_ops):
-    fake_cursor = make_fake_cursor(mocker, rowcount=2)
-    fake_conn = make_fake_conn(mocker, cursor=fake_cursor)
-    db_ops.delete_data(fake_conn, 'foo', where_clause='id=%s', params=(1,))
-    fake_conn.cursor.return_value.execute.assert_called_with('DELETE FROM foo WHERE id=%s', (1,))
-    fake_conn.commit.assert_called_once()
-
-
-def test_delete_data_no_where(mocker, db_ops):
-    fake_cursor = make_fake_cursor(mocker, rowcount=3)
-    fake_conn = make_fake_conn(mocker, cursor=fake_cursor)
-    db_ops.delete_data(fake_conn, 'bar')
-    fake_conn.cursor.return_value.execute.assert_called_with('DELETE FROM bar', None)
-    fake_conn.commit.assert_called_once()
+def test_select_data_with_where_clause(db):
+    db_ops, conn = db
+    profiles = player_profiles_test_db
+    db_ops.insert_profile_data(conn, profiles)
+    rows = db_ops.select_data(
+        conn,
+        table="profile_data",
+        where_clause="profile = 5111553",
+    )
+    assert rows[0][:6] == (5111553, 155755, 'Charmed', 129, 'None', '#berufs')
