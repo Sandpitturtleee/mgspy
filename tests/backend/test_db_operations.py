@@ -1,9 +1,8 @@
 import datetime
 
 import pytest
-import psycopg2
 
-from backend.db_operations import DbOperations  # Assume your class is saved in db_ops.py
+from backend.db_operations import DbOperations
 from tests.data.data import player_profiles_test_db, player_activity_test_db
 
 DB_NAME_TEST = "mgspy_test"

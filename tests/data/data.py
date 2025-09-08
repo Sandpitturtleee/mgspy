@@ -144,3 +144,7 @@ player_profiles_test_db = [{'profile': '5111553', 'char': '155755', 'nick': 'Cha
     {'profile': '973998', 'char': '68470', 'nick': 'łelełęłęłeł', 'lvl': '64', 'clan': 'None', 'world': '#berufs'}
 ]
 
+player_activity_test_short = [
+    {'profile': '7667949', 'char': '155201', 'datetime': '2025-01-01 12:00:00'},
+    {'profile': '9626924', 'char': '245493', 'datetime': '2025-01-01 12:00:00'},
+]

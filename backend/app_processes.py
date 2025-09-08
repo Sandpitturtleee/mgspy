@@ -2,8 +2,8 @@ import multiprocessing
 import time
 from multiprocessing import Event
 
-from db_operations import DbOperations
-from web_scrapper import WebScrapper
+from backend.db_operations import DbOperations
+from backend.web_scrapper import WebScrapper
 
 
 class AppProcesses:

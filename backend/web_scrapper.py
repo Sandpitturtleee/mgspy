@@ -58,6 +58,7 @@ class WebScrapper:
             response = requests.get(self.stats_url, timeout=30)
             elapsed_time = time.time() - start_time
             soup = BeautifulSoup(response.text, "html.parser")
+
             outer_div = soup.find(
                 "div", class_="light-brown-box news-container no-footer berufs-popup"
             )
@@ -93,7 +94,7 @@ class WebScrapper:
         except Exception as e:
             elapsed_time = time.time() - start_time
             print(str(e))
-            # return player_activity, elapsed_time
+            return player_activity, elapsed_time
         return player_activity, elapsed_time
 
     def scrap_profile_data(self, player_activity: list[dict]) -> list[dict]:

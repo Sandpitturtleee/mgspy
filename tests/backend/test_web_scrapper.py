@@ -93,7 +93,6 @@ def test_scrap_profile_data_multiple(mocker, webscraper, player_profiles, profil
 
 def test_scrap_character_activity_real_response(webscraper):
     player_activity, elapsed_time = webscraper.scrap_character_activity()
-
     assert isinstance(player_activity, list)
     assert isinstance(elapsed_time, float)
     assert len(player_activity) >= 1
