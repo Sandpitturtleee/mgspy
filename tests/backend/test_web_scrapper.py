@@ -43,18 +43,21 @@ def profile_973998():
     path = Path(__file__).parent.parent / "data" / "973998_profile.html"
     return path.read_text(encoding="utf-8")
 
+@pytest.fixture
+def player_activity_test_data():
+    return player_activity_test
 
-def test_scrap_character_activity(mocker, activity_html, webscraper):
+
+def test_scrap_character_activity(mocker, activity_html, webscraper,player_activity_test_data):
     mock_response = MagicMock()
     mock_response.text = activity_html
     mocker.patch('requests.get', return_value=mock_response)
     mocker.patch('time.time', side_effect=[1000, 1001])
     mocker.patch('backend.web_scrapper.datetime', autospec=True)
     ws.datetime.now.return_value = datetime(2025, 1, 1, 12, 0, 0)
-
     player_activity, elapsed = webscraper.scrap_character_activity()
     assert elapsed == 1
-    assert player_activity == player_activity_test
+    assert player_activity == player_activity_test_data
 
 
 def test_scrap_character_activity_empty(mocker, empty_activity_html, webscraper):
