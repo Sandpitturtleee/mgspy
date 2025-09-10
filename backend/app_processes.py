@@ -47,7 +47,7 @@ class AppProcesses:
         self.db_name = db_name
         self.scrap_player_activity_interval = 60
         self.save_player_activity_interval = 600
-        self.app_run_time = 3600 * 3
+        self.app_run_time = 3600 * 26
 
     def scrap_player_activity(
         self, scrapped_player_activity: list[dict], control_event: Event

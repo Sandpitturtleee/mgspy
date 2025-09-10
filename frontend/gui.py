@@ -1,7 +1,7 @@
 import base64
 from datetime import datetime
 
-from data_collectors import DataCollectors
+from frontend.data_collectors import DataCollectors
 from nicegui import ui
 
 
