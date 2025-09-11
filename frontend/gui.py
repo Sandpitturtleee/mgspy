@@ -35,6 +35,7 @@ class Gui:
         """
         Initialize the GUI, layout, and default date range for activity plots.
         """
+        print("Entered Gui.__init__")
         ui.page_title("mgspy")
         with ui.column().classes("w-full items-center justify-center").style(
             "min-height: 100vh"

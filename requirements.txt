@@ -18,3 +18,4 @@ nicegui~=2.20.0
 matplotlib~=3.8.4
 pytest~=8.4.1
 psycopg2~=2.9.10
+selenium~=4.35.0
