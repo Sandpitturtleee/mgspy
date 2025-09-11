@@ -37,6 +37,11 @@ def player_activity_test_short():
 
 
 @pytest.fixture
+def activity_html_result():
+    return load_json("activity_html_result.json")
+
+
+@pytest.fixture
 def activity_html():
     file_path = os.path.join(DATA_PATH, "activity.html")
     with open(file_path, encoding="utf-8") as f:

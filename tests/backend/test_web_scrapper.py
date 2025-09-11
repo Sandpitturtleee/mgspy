@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 from backend.web_scrapper import WebScrapper
+from bs4 import BeautifulSoup
 
 import backend.web_scrapper as ws
 
@@ -13,7 +14,7 @@ def webscraper():
     return WebScrapper()
 
 
-def test_scrap_character_activity(mocker, activity_html, webscraper,player_activity_test):
+def test_scrap_character_activity(mocker, activity_html, webscraper, player_activity_test):
     mock_response = MagicMock()
     mock_response.text = activity_html
     mocker.patch('requests.get', return_value=mock_response)
@@ -44,7 +45,8 @@ def test_scrap_character_activity_empty(mocker, empty_activity_html, webscraper)
     }]
 
 
-def test_scrap_profile_data_multiple(mocker, webscraper, player_profiles, profile_5111553, profile_973998,player_profiles_test):
+def test_scrap_profile_data_multiple(mocker, webscraper, player_profiles, profile_5111553, profile_973998,
+                                     player_profiles_test):
     # Patch time.sleep to do nothing
     mocker.patch('time.sleep', return_value=None)
     # Create two different mocked responses
@@ -79,3 +81,42 @@ def test_scrap_profile_data_real_response(webscraper, player_profiles):
         assert isinstance(first, dict)
         for k in ("profile", "char", "nick", "lvl", "world"):
             assert k in first
+
+
+def test_parse_profile_char_from_link(webscraper):
+    link = "/profile/view,5111553#char_142716"
+    result = webscraper.parse_profile_char_from_link(link)
+    assert result == ("5111553", "142716")
+    assert webscraper.parse_profile_char_from_link("invalid_link") is None
+
+
+def test_get_stats_inner_div(activity_html, webscraper):
+    soup = BeautifulSoup(activity_html, "html.parser")
+    inner = webscraper.get_stats_inner_div(soup)
+    assert inner is not None
+    assert inner.find("a", class_="statistics-rank") is not None
+    soup = BeautifulSoup("<div></div>", "html.parser")
+    assert webscraper.get_stats_inner_div(soup) is None
+
+
+def test_construct_profile_url(webscraper):
+    assert webscraper.construct_profile_url("5111553",
+                                            "142716") == "https://www.margonem.pl/profile/view,5111553#char_142716,berufs"
+
+
+def test_extract_player_activity_from_inner_div(activity_html, webscraper, mocker, activity_html_result):
+    soup = BeautifulSoup(activity_html, "html.parser")
+    inner = webscraper.get_stats_inner_div(soup)
+    mocker.patch.object(WebScrapper, "get_now", return_value="2025-01-01 12:00:00")
+    act = webscraper.extract_player_activity_from_inner_div(inner)
+    assert act == activity_html_result
+
+
+def test_extract_characters_from_profiles(profile_5111553, profile_973998, webscraper, player_profiles_test):
+    soup = BeautifulSoup(profile_5111553, "html.parser")
+    result1 = webscraper.extract_characters_from_profile(soup, "5111553")
+    soup = BeautifulSoup(profile_973998, "html.parser")
+    result2 = webscraper.extract_characters_from_profile(soup, "973998")
+    result = result1 + result2
+    assert isinstance(result, list)
+    assert result == player_profiles_test
