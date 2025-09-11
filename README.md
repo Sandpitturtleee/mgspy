@@ -63,12 +63,12 @@ pip3 install -r requirements.txt
 **3. Running Backend**
 ```bash
 cd backend
-python3 main.py
+python3 createjsons.py
 ```
 **4. Running Frontend**
 ```bash
 cd frontend
-python3 main.py
+python3 createjsons.py
 ```
 
 ## Project Structure

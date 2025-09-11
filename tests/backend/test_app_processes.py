@@ -4,7 +4,6 @@ import pytest
 
 from backend.app_processes import AppProcesses
 from backend.db_operations import DbOperations
-from tests.data.data import player_activity_test, player_activity_test_short
 
 DB_NAME_TEST = "mgspy_test"
 
@@ -58,7 +57,7 @@ def test_scrap_player_activity(app_processes):
         assert key in entry
 
 
-def test_save_player_activity(app_processes, db):
+def test_save_player_activity(app_processes, db,player_activity_test):
     db_ops, conn = db
 
     collected_activity = player_activity_test
@@ -89,7 +88,7 @@ def test_save_player_activity(app_processes, db):
     assert str(last_row[2]).startswith("2025-01-01")
 
 
-def test_scrap_and_save_profile_data(app_processes, db):
+def test_scrap_and_save_profile_data(app_processes, db,player_activity_test_short):
     db_ops, conn = db
 
     collected_activity = player_activity_test_short

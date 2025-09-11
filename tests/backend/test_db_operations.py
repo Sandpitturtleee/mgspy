@@ -3,7 +3,6 @@ import datetime
 import pytest
 
 from backend.db_operations import DbOperations
-from tests.data.data import player_profiles_test_db, player_activity_test_db
 
 DB_NAME_TEST = "mgspy_test"
 
@@ -26,7 +25,7 @@ def cleanup_tables(db):
     yield
 
 
-def test_insert_and_select_activity_data(db):
+def test_insert_and_select_activity_data(db,player_activity_test_db):
     db_ops, conn = db
     activity = player_activity_test_db
     db_ops.insert_activity_data(conn, activity)
@@ -36,7 +35,7 @@ def test_insert_and_select_activity_data(db):
     assert rows[len(rows) - 1][:3] == (9519329, 247700, datetime.datetime(2025, 1, 1, 12, 0))
 
 
-def test_delete_activity_data(db):
+def test_delete_activity_data(db,player_activity_test_db):
     db_ops, conn = db
     activity = player_activity_test_db
     db_ops.insert_activity_data(conn, activity)
@@ -48,7 +47,7 @@ def test_delete_activity_data(db):
     assert rows[len(rows) - 1][:3] != (9519329, 247700, datetime.datetime(2025, 1, 1, 12, 0))
 
 
-def test_insert_and_select_profile_data(db):
+def test_insert_and_select_profile_data(db,player_profiles_test_db):
     db_ops, conn = db
     profiles = player_profiles_test_db
     db_ops.insert_profile_data(conn, profiles)
@@ -58,7 +57,7 @@ def test_insert_and_select_profile_data(db):
     assert rows[len(rows) - 1][:6] == (973998, 68470, 'łelełęłęłeł', 64, 'None', '#berufs')
 
 
-def test_delete_profile_data(db):
+def test_delete_profile_data(db,player_profiles_test_db):
     db_ops, conn = db
     profiles = player_profiles_test_db
     db_ops.insert_profile_data(conn, profiles)
@@ -67,7 +66,7 @@ def test_delete_profile_data(db):
     assert len(rows) == 7
 
 
-def test_select_data_with_where_clause(db):
+def test_select_data_with_where_clause(db,player_profiles_test_db):
     db_ops, conn = db
     profiles = player_profiles_test_db
     db_ops.insert_profile_data(conn, profiles)

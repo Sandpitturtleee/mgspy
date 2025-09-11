@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime, timedelta
 
 from backend.db_operations import DbOperations
-from frontend.data_collectors import DataCollectors  # <-- Adjust import if needed
+from frontend.data_collectors import DataCollectors
 
 DB_NAME_TEST = "mgspy_test_front"
 

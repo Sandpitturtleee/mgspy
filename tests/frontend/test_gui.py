@@ -1,18 +1,6 @@
-import base64
-import types
-
 import pytest
 
 from frontend.gui import Gui
-from io import BytesIO
-
-
-# class DummyImg:
-#     def read(self):  # minimal fake bytes for base64 encoding
-#
-@pytest.fixture
-def img():
-    return BytesIO(b'12345678')
 
 
 @pytest.fixture
