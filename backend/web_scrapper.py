@@ -7,6 +7,42 @@ from bs4 import BeautifulSoup
 
 
 class WebScrapper:
+    """
+    Handles web scraping of player statistics and profile information from margonem.pl.
+
+    This class provides static and instance methods for extracting player activity data
+    and character profile information from the game's website, with support for
+    network timeouts, retries, and HTML parsing.
+
+    Attributes
+    ----------
+    stats_url : str
+        URL for the player statistics page.
+    profile_url : str
+        URL for accessing individual player profiles.
+
+    Methods
+    -------
+    get_soup(url, max_retries=3, timeout=30) -> Optional[BeautifulSoup]
+        Fetches a web page and returns a BeautifulSoup object, with retries on failure.
+    get_now() -> str
+        Returns the current date and time as a formatted string.
+    parse_profile_char_from_link(link) -> Optional[Tuple[str, str]]
+        Parses profile and character IDs from a profile link.
+    get_stats_inner_div(soup) -> Optional[BeautifulSoup]
+        Locates the inner HTML div containing player activity stats.
+    construct_profile_url(profile, char) -> str
+        Constructs the URL for a player's character profile.
+    extract_player_activity_from_inner_div(inner_div) -> List[Dict[str, Any]]
+        Extracts player activity data from the statistics HTML division.
+    scrap_character_activity() -> Tuple[List[Dict[str, Any]], float]
+        Scrapes the stats page for current player activity and returns the data and elapsed time.
+    extract_characters_from_profile(soup, profile) -> List[Dict[str, Any]]
+        Extracts all character information from a player's profile HTML.
+    scrap_profile_data(player_activity) -> List[Dict[str, Any]]
+        For each player activity, scrapes the corresponding profile page and extracts character information.
+
+    """
     def __init__(self):
         """
         Initialize the WebScrapper with default URLs.
