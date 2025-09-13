@@ -98,7 +98,8 @@ class DbOperations:
                 time.sleep(delay)
         raise Exception("Database not available after retries!")
 
-    def insert_activity_data(self, db_connection, player_activity: list[dict]):
+    @staticmethod
+    def insert_activity_data(db_connection, player_activity: list[dict]):
         """
         Insert activity data into the activity_data table.
 
@@ -120,7 +121,8 @@ class DbOperations:
             db_connection.commit()
             print("Activity data inserted successfully.")
 
-    def insert_profile_data(self, db_connection, profile_data: list[dict]):
+    @staticmethod
+    def insert_profile_data(db_connection, profile_data: list[dict]):
         """
         Insert player profile data into profile_data table.
 
@@ -149,13 +151,13 @@ class DbOperations:
             db_connection.commit()
             print("Profile data inserted successfully.")
 
+    @staticmethod
     def select_data(
-        self,
-        db_connection,
-        table: str,
-        columns: str = "*",
-        where_clause: str = None,
-        params: tuple = None,
+            db_connection,
+            table: str,
+            columns: str = "*",
+            where_clause: str = None,
+            params: tuple = None,
     ):
         """
         Select data from a PostgreSQL table.
@@ -186,8 +188,9 @@ class DbOperations:
             print(f"{len(results)} rows selected from '{table}'.")
             return results
 
+    @staticmethod
     def delete_data(
-        self, db_connection, table: str, where_clause: str = None, params: tuple = None
+            db_connection, table: str, where_clause: str = None, params: tuple = None
     ):
         """
         Delete data from a PostgreSQL table.
