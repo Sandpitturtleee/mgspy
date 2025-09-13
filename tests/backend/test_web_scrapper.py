@@ -15,6 +15,7 @@ def webscraper():
 def test_scrap_character_activity(mocker, activity_html, webscraper, player_activity_test):
     mock_response = MagicMock()
     mock_response.text = activity_html
+    mock_response.content = activity_html.encode()
     mocker.patch('requests.get', return_value=mock_response)
     mocker.patch('time.time', side_effect=[1000, 1001])
     mocker.patch('backend.web_scrapper.datetime', autospec=True)
@@ -27,6 +28,7 @@ def test_scrap_character_activity(mocker, activity_html, webscraper, player_acti
 def test_scrap_character_activity_empty(mocker, empty_activity_html, webscraper):
     mock_response = MagicMock()
     mock_response.text = empty_activity_html
+    mock_response.content = empty_activity_html.encode()
     mocker.patch('requests.get', return_value=mock_response)
     mocker.patch('time.time', side_effect=[1000, 1001])
     mocker.patch('backend.web_scrapper.datetime', autospec=True)
@@ -40,13 +42,14 @@ def test_scrap_character_activity_empty(mocker, empty_activity_html, webscraper)
     }]
 
 
-def test_scrap_profile_data_multiple(mocker, webscraper, player_profiles, profile_5111553, profile_973998,
-                                     player_profiles_test):
+def test_scrap_profile_data_multiple(mocker, webscraper, player_profiles, profile_5111553, profile_973998, player_profiles_test):
     mocker.patch('time.sleep', return_value=None)
     mock_response1 = MagicMock()
     mock_response1.text = profile_5111553
+    mock_response1.content = profile_5111553.encode()
     mock_response2 = MagicMock()
     mock_response2.text = profile_973998
+    mock_response2.content = profile_973998.encode()
     mocker.patch('requests.get', side_effect=[mock_response1, mock_response2])
     result = webscraper.scrap_profile_data(player_profiles)
     assert result == player_profiles_test
