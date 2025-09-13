@@ -31,30 +31,17 @@ def test_get_player_activity(dc):
 
 
 def test_plot_player_activity(dc, mocker):
-    # Patch plt.show to avoid actually rendering
     show_mock = mocker.patch("matplotlib.pyplot.show")
-
     timestamps = dc.get_player_activity("Cycu Dzik")
-
-    # Act - should not error
     dc.plot_player_activity(timestamps)
-
-    # Assert - show was called once
     show_mock.assert_called_once()
 
 
 def test_gui_plot_player_activity_png_bytesio(dc):
     timestamps = dc.get_player_activity("Cycu Dzik")
-
-    # Act
     img_bytes = dc.gui_plot_player_activity(timestamps)
-
-    # Assert: returns BytesIO with PNG magic bytes
     assert hasattr(img_bytes, "read")
     img_bytes.seek(0)
     png_sig = img_bytes.read(8)
-    assert png_sig == b"\x89PNG\r\n\x1a\n"  # PNG file signature
+    assert png_sig == b"\x89PNG\r\n\x1a\n"
 
-    # Optionally, verify there's some more data (actual image content ≫ header)
-    img_bytes.seek(0, 2)  # Seek to end of file
-    assert img_bytes.tell() > 100  # At least some content
