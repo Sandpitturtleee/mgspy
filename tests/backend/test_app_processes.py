@@ -57,7 +57,7 @@ def test_scrap_player_activity(app_processes):
         assert key in entry
 
 
-def test_save_player_activity(app_processes, db,player_activity_test):
+def test_save_player_activity(app_processes, db, player_activity_test):
     db_ops, conn = db
 
     collected_activity = player_activity_test
@@ -88,7 +88,7 @@ def test_save_player_activity(app_processes, db,player_activity_test):
     assert str(last_row[2]).startswith("2025-01-01")
 
 
-def test_scrap_and_save_profile_data(app_processes, db,player_activity_test_short):
+def test_scrap_and_save_profile_data(app_processes, db, player_activity_test_short):
     db_ops, conn = db
 
     collected_activity = player_activity_test_short
@@ -101,11 +101,9 @@ def test_scrap_and_save_profile_data(app_processes, db,player_activity_test_shor
     results_activity = db_ops.select_data(conn, 'activity_data')
     results_profiles = db_ops.select_data(conn, 'profile_data')
 
-    # Create set of (profile, char) in activity_data
     activity_pairs = {(row[0], row[1]) for row in results_activity}
     profile_pairs = {(row[0], row[1]) for row in results_profiles}
 
-    # Each pair in activity_data is present in profile_data
     assert activity_pairs <= profile_pairs, (
         f"Missing profile/char pairs: {activity_pairs - profile_pairs}"
     )
@@ -119,3 +117,34 @@ def test_process_app(app_processes, db):
     results_activity = db_ops.select_data(conn, 'activity_data')
 
     assert len(results_activity) >= 1
+
+
+def test_extract_unique_profiles(non_unique_profiles,unique_profiles):
+    out = AppProcesses.extract_unique_profiles(non_unique_profiles)
+    assert out == unique_profiles
+
+
+def test_smart_sleep_stops_on_event_early(mocker):
+    event = threading.Event()
+    slept = []
+
+    def fake_sleep(secs):
+        slept.append(secs)
+        if len(slept) == 2:
+            event.set()
+
+    mocker.patch("time.sleep", side_effect=fake_sleep)
+    AppProcesses.smart_sleep(10, event)
+
+    assert len(slept) == 2
+    assert all(s == 1 for s in slept)
+
+
+def test_smart_sleep_full_wait(mocker):
+    event = threading.Event()
+    slept = []
+
+    mocker.patch("time.sleep", side_effect=lambda secs: slept.append(secs))
+
+    AppProcesses.smart_sleep(3, event)
+    assert slept == [1, 1, 1]

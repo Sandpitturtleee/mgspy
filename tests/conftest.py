@@ -42,6 +42,16 @@ def activity_html_result():
 
 
 @pytest.fixture
+def non_unique_profiles():
+    return load_json("non_unique_profiles.json")
+
+
+@pytest.fixture
+def unique_profiles():
+    return load_json("unique_profiles.json")
+
+
+@pytest.fixture
 def activity_html():
     file_path = os.path.join(DATA_PATH, "activity.html")
     with open(file_path, encoding="utf-8") as f:
