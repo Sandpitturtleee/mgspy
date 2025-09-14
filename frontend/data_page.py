@@ -3,7 +3,7 @@ from frontend.gui import Gui
 from frontend.data_page_helpers import DataPageHelpers
 
 
-class TablePage(Gui):
+class DataPage(Gui):
     def __init__(self):
         super().__init__()
         self.table_data = []
