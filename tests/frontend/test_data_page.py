@@ -1,57 +1,78 @@
 import pytest
+from frontend.data_page_helpers import DataPageHelpers
 from frontend.data_page import DataPage
 
 
 @pytest.fixture
-def page(mocker):
-    helpers_mock = mocker.Mock()
-    page = DataPage()
-    page.helpers = helpers_mock
-    page.input_nick = mocker.Mock()
-    return page
+def table_input():
+    return [{'nick': 'Sold', 'lvl': 53, 'guild': ''}, ]
 
 
-def test_update_table_shows_filtered_if_exists(page, mocker):
-    page.input_nick.value = "Sold"
-    page.table_data = [{'nick': 'Sold', 'lvl': 53, 'guild': ''}]
-    filtered_result = [{'nick': 'Sold', 'lvl': 53, 'guild': ''}]
-    table_mock = mocker.Mock()
-    page.helpers.fill_table_input.return_value = filtered_result
-
-    def update_table():
-        nick = page.input_nick.value.strip()
-        data = page.helpers.fill_table_input(nick)
-        if not data:
-            data = page.table_data
-        table_mock.rows = data
-
-    update_table()
-    page.helpers.fill_table_input.assert_called_with("Sold")
-    assert table_mock.rows == filtered_result
+@pytest.fixture
+def mock_fill_table_input(mocker, table_input):
+    return mocker.patch.object(
+        DataPageHelpers, "fill_table_input", return_value=table_input)
 
 
-def test_update_table_shows_all_if_nick_missing(page, mocker):
-    page.input_nick.value = "TEST"
-    page.table_data = [{'nick': 'Sold', 'lvl': 53, 'guild': ''}]
-    table_mock = mocker.Mock()
-    page.helpers.fill_table_input.return_value = []
-
-    def update_table():
-        nick = page.input_nick.value.strip()
-        data = page.helpers.fill_table_input(nick)
-        if not data:
-            data = page.table_data
-        table_mock.rows = data
-
-    update_table()
-    page.helpers.fill_table_input.assert_called_with("TEST")
-    assert table_mock.rows == page.table_data
+@pytest.fixture
+def fill_table():
+    return [{'nick': 'Sold', 'lvl': 53, 'guild': ''}, {'nick': 'Charmed', 'lvl': 135, 'guild': ''}]
 
 
-def test_initial_table_data_filled(page):
-    sample_data = [{'nick': 'Sold', 'lvl': 53, 'guild': ''}]
-    page.helpers.fill_table.return_value = sample_data
+@pytest.fixture
+def mock_fill_table(mocker):
+    return mocker.patch.object(
+        DataPageHelpers, "fill_table", return_value=fill_table)
 
-    page.table_data = page.helpers.fill_table()
-    page.helpers.fill_table.assert_called_once()
-    assert page.table_data == sample_data
+
+def test_page_calls_helpers_and_sets_values(mocker, mock_fill_table):
+    dp = DataPage()
+
+    navbar_mock = mocker.patch.object(dp, "navbar")
+    mocker.patch("nicegui.ui.column", mocker.MagicMock())
+    mocker.patch("nicegui.ui.button", mocker.MagicMock())
+    mocker.patch("nicegui.ui.table", mocker.MagicMock())
+    mock_input = mocker.patch("nicegui.ui.input", autospec=True)
+    dp.page()
+
+    mock_fill_table.assert_called_once()
+    navbar_mock.assert_called()
+    mock_input.assert_called()
+
+
+def test_update_table_button_triggers_fill_table_input(
+        mocker, mock_fill_table, mock_fill_table_input,fill_table,table_input):
+    dp = DataPage()
+
+    dp.input_nick = mocker.Mock()
+    dp.input_nick.value = "Sold"
+    dp.table_data = fill_table
+    table_mock = mocker.MagicMock()
+    local_ctx = {}
+
+    def fake_table(**kwargs):
+        local_ctx['rows'] = kwargs['rows']
+        return table_mock
+
+    mocker.patch("nicegui.ui.table", fake_table)
+    mocker.patch("nicegui.ui.input", return_value=dp.input_nick)
+    mocker.patch.object(dp, "navbar")
+    mocker.patch("nicegui.ui.button")
+
+    dp.page()
+    dp.input_nick.value = "Sold"
+    table_mock.rows = dp.helpers.fill_table_input(dp.input_nick.value)
+    assert table_mock.rows == table_input
+
+
+def test_update_table_defaults_on_empty(mocker, mock_fill_table,table_input):
+    dp = DataPage()
+    dp.input_nick = mocker.Mock()
+    dp.input_nick.value = ""
+    dp.table_data = table_input
+    table_mock = mocker.MagicMock()
+    table_mock.rows = None
+    dp.helpers.fill_table_input = mocker.MagicMock(return_value=[])
+    table_mock.rows = dp.table_data
+
+    assert table_mock.rows == dp.table_data

@@ -1,5 +1,7 @@
 import pytest
 from datetime import datetime, timedelta
+import io
+import matplotlib.pyplot as plt
 
 from frontend.activity_page_helpers import ActivityPageHelpers
 
@@ -92,7 +94,7 @@ def test_plot_player_activity_calls_render(helpers_and_db, mocker, activity_data
     mock_render.assert_called_once()
 
 
-def test_gui_plot_player_activity_calls_render_to_bytesio(helpers_and_db, mocker,activity_data):
+def test_gui_plot_player_activity_calls_render_to_bytesio(helpers_and_db, mocker, activity_data):
     helpers, db = helpers_and_db
     helpers.start_date = datetime(2023, 1, 1, 12, 0, 0)
     helpers.end_date = helpers.start_date + timedelta(hours=1)
@@ -109,3 +111,19 @@ def test_calculate_end_date():
     start = datetime(2023, 1, 1, 9, 0, 0)
     e = ActivityPageHelpers.calculate_end_date(start)
     assert e == start + timedelta(hours=1)
+
+
+def test_render_bar_chart_executes(helpers_and_db, mocker):
+    helpers, db = helpers_and_db
+    helpers.start_date = datetime(2025, 1, 1, 11, 0)
+    helpers.end_date = datetime(2025, 1, 1, 12, 0)
+    mocker.patch("matplotlib.pyplot.show")
+    helpers.render_bar_chart(["12:00", "12:10"], [1, 0])
+
+
+def test_render_bar_chart_to_bytesio_returns_bytesio(helpers_and_db):
+    helpers, db = helpers_and_db
+    helpers.start_date = datetime(2025, 1, 1, 12, 0)
+    helpers.end_date = datetime(2025, 1, 1, 13, 0)
+    img = helpers.render_bar_chart_to_bytesio(["12:00", "12:10"], [1, 0])
+    assert isinstance(img, io.BytesIO)
