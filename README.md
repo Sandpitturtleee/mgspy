@@ -78,7 +78,7 @@ python3 createjsons.py
    * [main.py](./backend/main.py)
    * [web_scrapper.py](./backend/web_scrapper.py)
  * [frontend](./frontend)
-   * [data_collectors.py](./frontend/data_collectors.py)
+   * [data_collectors.py](./frontend/activity_page_helpers.py)
    * [gui.py](./frontend/gui.py)
    * [main.py](./frontend/main.py)
  * [.gitignore](./.gitignore)

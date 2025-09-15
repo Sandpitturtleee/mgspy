@@ -30,9 +30,3 @@ Stores basic profile information for characters in the game.
 | world    | VARCHAR(255) |             | World/server where character exists  |
 
 ---
-
-### Relationships
-
-- The pair (`profile`, `char`) acts as the key to associate entries in `activity_data` with records in `profile_data`.
-
----

@@ -1,13 +1,13 @@
 from nicegui import ui
 from gui import Gui
-from data_page import TablePage
+from data_page import DataPage
 from activity_page import ActivityPage
 
 
 class App(Gui):
     def __init__(self):
         super().__init__()
-        self.table_page = TablePage()
+        self.table_page = DataPage()
         self.activity_page = ActivityPage()
         ui.page('/')(self.table_page.page)
         ui.page('/activity')(self.activity_page.page)
