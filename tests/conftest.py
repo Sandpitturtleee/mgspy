@@ -2,6 +2,7 @@ import json
 import pytest
 import os
 from io import BytesIO
+from selenium import webdriver
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), "data")
 
@@ -87,3 +88,12 @@ def profile_973998():
 @pytest.fixture
 def img():
     return BytesIO(b'12345678')
+
+
+@pytest.fixture
+def driver():
+    # Change to webdriver.Firefox() if you prefer Firefox
+    driver = webdriver.Chrome()
+    driver.implicitly_wait(3)
+    yield driver
+    driver.quit()
