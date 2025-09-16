@@ -3,7 +3,6 @@ from frontend.gui import Gui
 
 
 def test_navbar_links(mocker):
-    # Create a mock for ui.row that acts as a context manager
     row_context = mocker.MagicMock()
     row_context.__enter__.return_value = row_context
     row_context.__exit__.return_value = False

@@ -10,7 +10,6 @@ DB_NAME_TEST = "mgspy_test"
 
 @pytest.fixture(scope="module")
 def db():
-    """Setup and teardown a database connection for the test session."""
     db_ops = DbOperations(db_name=DB_NAME_TEST)
     conn = db_ops.connect_to_db()
     yield db_ops, conn
@@ -19,7 +18,6 @@ def db():
 
 @pytest.fixture(autouse=True)
 def cleanup_tables(db):
-    """Cleanup tables before each test."""
     db_ops, conn = db
     db_ops.delete_data(conn, 'activity_data')
     db_ops.delete_data(conn, 'profile_data')
