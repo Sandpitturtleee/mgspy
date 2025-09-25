@@ -6,6 +6,35 @@ from frontend.gui import Gui
 
 
 class ActivityPage(Gui):
+    """
+        A GUI page for displaying player activity as an interactive plot using NiceGUI.
+
+        Attributes
+        ----------
+        start_time : ui.input
+            NiceGUI input widget for selecting the start time (HH:MM).
+        start_date : ui.input
+            NiceGUI input widget for selecting the start date (YYYY-MM-DD).
+        start_date_str : str
+            Default value for the start date input widget.
+        start_time_str : str
+            Default value for the start time input widget.
+        input_nick : ui.input
+            NiceGUI input widget for the player's nick.
+        plot_area : ui.image
+            NiceGUI image widget for displaying the activity plot.
+        helpers : ActivityPageHelpers
+            Helper class instance for business logic and plotting.
+
+        Methods
+        -------
+        page()
+            Build and render the activity page UI and widgets.
+        convert_datetime() -> datetime
+            Combine start date and time input fields into a `datetime` object.
+        make_plot()
+            Triggered on button click; retrieves player activity, generates and displays the plot.
+        """
     def __init__(self):
         super().__init__()
         self.start_time = None
@@ -17,6 +46,19 @@ class ActivityPage(Gui):
         self.helpers = ActivityPageHelpers()
 
     def page(self):
+        """
+        Build the user interface for the Activity page.
+
+        The page includes:
+            - Player nick input
+            - Date and time input fields
+            - Button to fetch and plot activity
+            - Output area for the plot image
+
+        Returns
+        -------
+        None
+        """
         ui.page_title("Activity")
         with ui.column().classes(f"{self.background} w-full min-h-screen items-center justify-start"):
             self.navbar()
@@ -41,7 +83,19 @@ class ActivityPage(Gui):
             )
 
     def convert_datetime(self):
-        """Combine start date and time input fields into a datetime object."""
+        """
+        Combine start date and start time fields into a single `datetime` object.
+
+        Raises
+        ------
+        ValueError
+            If date or time fields are invalid or not in the expected format.
+
+        Returns
+        -------
+        datetime
+            Combined datetime from provided fields.
+        """
         date_str = self.start_date.value  # e.g. '2025-06-28'
         time_str = self.start_time.value  # e.g. '11:00'
         try:
@@ -50,6 +104,16 @@ class ActivityPage(Gui):
             raise ValueError(f"Invalid date or time: {e}")
 
     def make_plot(self):
+        """
+        Handler for the "Show player activity" button.
+
+        Gets user input, validates it, fetches player activity data from the helpers,
+        and displays the plot image. Shows user notifications on errors or empty results.
+
+        Returns
+        -------
+        None
+        """
         nick = self.input_nick.value.strip()
         date = self.convert_datetime()
         self.plot_area.source = ''

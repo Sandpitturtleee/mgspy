@@ -4,6 +4,25 @@ from frontend.data_page_helpers import DataPageHelpers
 
 
 class DataPage(Gui):
+    """
+    A GUI page to display and filter player data in a sortable table using NiceGUI.
+
+    Attributes
+    ----------
+    table_data : list[dict]
+        List of all player data to be displayed in the table.
+    filtered_data : list[dict]
+        List of filtered player data.
+    input_nick : ui.input
+        NiceGUI input widget for the player nickname filter.
+    helpers : DataPageHelpers
+        Helper class instance for table data and filtering.
+
+    Methods
+    -------
+    page()
+        Build and render the data table UI, input, and filtering button.
+    """
     def __init__(self):
         super().__init__()
         self.table_data = []
@@ -12,6 +31,23 @@ class DataPage(Gui):
         self.helpers = DataPageHelpers()
 
     def page(self):
+        """
+        Build the user interface for the Data page.
+
+        The page includes:
+            - A player nick input for filtering.
+            - A button for applying the filter.
+            - A table to show player data (filterable by nick).
+
+        Table columns include:
+            - Nick: player nickname (sortable)
+            - Lvl: player level (sortable)
+            - Guild: player guild (not sortable)
+
+        Returns
+        -------
+        None
+        """
         ui.page_title("Data")
         with ui.column().classes(f"{self.background} w-full min-h-screen items-center justify-start"):
             self.navbar()
