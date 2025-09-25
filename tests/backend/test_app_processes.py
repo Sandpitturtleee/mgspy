@@ -19,8 +19,8 @@ def db():
 @pytest.fixture(autouse=True)
 def cleanup_tables(db):
     db_ops, conn = db
-    db_ops.delete_data(conn, 'activity_data')
-    db_ops.delete_data(conn, 'profile_data')
+    db_ops.delete_data(conn, "activity_data")
+    db_ops.delete_data(conn, "profile_data")
     yield
 
 
@@ -39,7 +39,7 @@ def test_scrap_player_activity(app_processes):
 
     thread = threading.Thread(
         target=app_processes.scrap_player_activity,
-        args=(collected_activity, control_event)
+        args=(collected_activity, control_event),
     )
     thread.start()
 
@@ -63,7 +63,7 @@ def test_save_player_activity(app_processes, db, player_activity_test):
 
     thread = threading.Thread(
         target=app_processes.save_player_activity,
-        args=(collected_activity, control_event)
+        args=(collected_activity, control_event),
     )
     thread.start()
 
@@ -71,7 +71,7 @@ def test_save_player_activity(app_processes, db, player_activity_test):
     control_event.set()
     thread.join(timeout=2)
 
-    activities = db_ops.select_data(conn, 'activity_data')
+    activities = db_ops.select_data(conn, "activity_data")
     assert len(activities) >= 1
     assert len(activities) == 55
     assert collected_activity == []
@@ -90,21 +90,19 @@ def test_scrap_and_save_profile_data(app_processes, db, player_activity_test_sho
     db_ops, conn = db
 
     collected_activity = player_activity_test_short
-    db_ops.insert_activity_data(
-        db_connection=conn, player_activity=collected_activity
-    )
+    db_ops.insert_activity_data(db_connection=conn, player_activity=collected_activity)
 
     app_processes.scrap_and_save_profile_data()
 
-    results_activity = db_ops.select_data(conn, 'activity_data')
-    results_profiles = db_ops.select_data(conn, 'profile_data')
+    results_activity = db_ops.select_data(conn, "activity_data")
+    results_profiles = db_ops.select_data(conn, "profile_data")
 
     activity_pairs = {(row[0], row[1]) for row in results_activity}
     profile_pairs = {(row[0], row[1]) for row in results_profiles}
 
-    assert activity_pairs <= profile_pairs, (
-        f"Missing profile/char pairs: {activity_pairs - profile_pairs}"
-    )
+    assert (
+        activity_pairs <= profile_pairs
+    ), f"Missing profile/char pairs: {activity_pairs - profile_pairs}"
 
 
 def test_process_app(app_processes, db):
@@ -112,12 +110,12 @@ def test_process_app(app_processes, db):
 
     app_processes.process_app()
     time.sleep(1)
-    results_activity = db_ops.select_data(conn, 'activity_data')
+    results_activity = db_ops.select_data(conn, "activity_data")
 
     assert len(results_activity) >= 1
 
 
-def test_extract_unique_profiles(non_unique_profiles,unique_profiles):
+def test_extract_unique_profiles(non_unique_profiles, unique_profiles):
     out = AppProcesses.extract_unique_profiles(non_unique_profiles)
     assert out == unique_profiles
 

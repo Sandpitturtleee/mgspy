@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from io import BytesIO
 import matplotlib.pyplot as plt
 from backend.db_operations import DbOperations
-from typing import Any, List, Dict, Optional
+from typing import Any
 
 
 class ActivityPageHelpers:
@@ -62,7 +62,9 @@ class ActivityPageHelpers:
         self.db: DbOperations = DbOperations(db_name=self.db_name)
         self.connection: Any = self.db.connect_to_db()
 
-    def get_player_activity(self, nick: str, start_date: datetime) -> list[datetime] | None:
+    def get_player_activity(
+        self, nick: str, start_date: datetime
+    ) -> list[datetime] | None:
         """
         Retrieve a list of activity timestamp datetimes for a given player, using
         the provided start_date and a computed (+1 hour) end_date.
@@ -165,7 +167,9 @@ class ActivityPageHelpers:
         return intervals
 
     @staticmethod
-    def activity_presence_array(intervals: list[datetime], timestamps: list[datetime]) -> list[int]:
+    def activity_presence_array(
+        intervals: list[datetime], timestamps: list[datetime]
+    ) -> list[int]:
         """
         Indicate for each interval whether any activity event occurred.
 
@@ -188,12 +192,17 @@ class ActivityPageHelpers:
         ts_idx = 0
         timestamps = sorted(timestamps)
         for i in range(len(intervals) - 1):
-            while ts_idx < len(timestamps) and intervals[i] <= timestamps[ts_idx] < intervals[i + 1]:
+            while (
+                ts_idx < len(timestamps)
+                and intervals[i] <= timestamps[ts_idx] < intervals[i + 1]
+            ):
                 activity_presence[i] = 1
                 ts_idx += 1
         return activity_presence
 
-    def render_bar_chart(self, interval_labels: list[str], activity_presence: list[int]):
+    def render_bar_chart(
+        self, interval_labels: list[str], activity_presence: list[int]
+    ):
         """
         Render an on-screen bar chart (via matplotlib) of activity presence per interval.
 
@@ -218,7 +227,9 @@ class ActivityPageHelpers:
         plt.tight_layout()
         plt.show()
 
-    def render_bar_chart_to_bytesio(self, interval_labels: list[str], activity_presence: list[int]) -> BytesIO:
+    def render_bar_chart_to_bytesio(
+        self, interval_labels: list[str], activity_presence: list[int]
+    ) -> BytesIO:
         """
         Create a PNG image in memory of player activity (useful for GUIs or web apps).
 
@@ -235,7 +246,9 @@ class ActivityPageHelpers:
             PNG image in a BytesIO (ready for GUI/HTML embedding).
         """
         fig, ax = plt.subplots(figsize=(12, 5))
-        ax.bar(range(len(interval_labels)), activity_presence, width=0.8, align="center")
+        ax.bar(
+            range(len(interval_labels)), activity_presence, width=0.8, align="center"
+        )
         ax.set_xticks(range(len(interval_labels)))
         ax.set_xticklabels(interval_labels, rotation=45)
         ax.set_yticks([0, 1])

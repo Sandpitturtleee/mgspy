@@ -16,10 +16,14 @@ def clear_input(field):
 
 def test_activity_page_elements_exist(driver):
     driver.get(BASE_URL)
-    input_nick = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Enter player nick']")
+    input_nick = driver.find_element(
+        By.CSS_SELECTOR, "input[placeholder='Enter player nick']"
+    )
     start_date = driver.find_element(By.CSS_SELECTOR, "input[placeholder='YYYY-MM-DD']")
     start_time = driver.find_element(By.CSS_SELECTOR, "input[placeholder='HH:MM']")
-    button = driver.find_element(By.XPATH, "//button[contains(.,'Show player activity')]")
+    button = driver.find_element(
+        By.XPATH, "//button[contains(.,'Show player activity')]"
+    )
     assert input_nick and start_date and start_time and button
 
 
@@ -34,7 +38,9 @@ def test_navigation_to_data(driver):
 
 def test_activity_page_no_nick_notification(driver):
     driver.get(BASE_URL)
-    button = driver.find_element(By.XPATH, "//button[contains(.,'Show player activity')]")
+    button = driver.find_element(
+        By.XPATH, "//button[contains(.,'Show player activity')]"
+    )
     button.click()
     time.sleep(1)
     toast = WebDriverWait(driver, 2).until(
@@ -48,7 +54,9 @@ def test_activity_page_no_nick_notification(driver):
 
 def test_activity_page_with_valid_nick(driver):
     driver.get(BASE_URL)
-    nick = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Enter player nick']")
+    nick = driver.find_element(
+        By.CSS_SELECTOR, "input[placeholder='Enter player nick']"
+    )
     clear_input(nick)
     nick.send_keys("Cycu Dzik")
 
@@ -59,7 +67,9 @@ def test_activity_page_with_valid_nick(driver):
     time_field = driver.find_element(By.CSS_SELECTOR, "input[placeholder='HH:MM']")
     clear_input(time_field)
     time_field.send_keys("11:00")
-    driver.find_element(By.XPATH, "//button[contains(.,'Show player activity')]").click()
+    driver.find_element(
+        By.XPATH, "//button[contains(.,'Show player activity')]"
+    ).click()
 
     time.sleep(1)
     img = WebDriverWait(driver, 10).until(
@@ -71,7 +81,9 @@ def test_activity_page_with_valid_nick(driver):
 
 def test_activity_page_valid_nick_wrong_date(driver):
     driver.get(BASE_URL)
-    nick = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Enter player nick']")
+    nick = driver.find_element(
+        By.CSS_SELECTOR, "input[placeholder='Enter player nick']"
+    )
     clear_input(nick)
     nick.send_keys("Cycu Dzik")
 
@@ -83,7 +95,9 @@ def test_activity_page_valid_nick_wrong_date(driver):
     clear_input(time_field)
     time_field.send_keys("11:00")
 
-    driver.find_element(By.XPATH, "//button[contains(.,'Show player activity')]").click()
+    driver.find_element(
+        By.XPATH, "//button[contains(.,'Show player activity')]"
+    ).click()
 
     time.sleep(1)
     toast = WebDriverWait(driver, 2).until(
@@ -96,10 +110,14 @@ def test_activity_page_valid_nick_wrong_date(driver):
 
 def test_activity_page_nonexistent_nick(driver):
     driver.get(BASE_URL)
-    nick = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Enter player nick']")
+    nick = driver.find_element(
+        By.CSS_SELECTOR, "input[placeholder='Enter player nick']"
+    )
     clear_input(nick)
     nick.send_keys("TEST")
-    driver.find_element(By.XPATH, "//button[contains(.,'Show player activity')]").click()
+    driver.find_element(
+        By.XPATH, "//button[contains(.,'Show player activity')]"
+    ).click()
 
     time.sleep(1)
     toast = WebDriverWait(driver, 2).until(

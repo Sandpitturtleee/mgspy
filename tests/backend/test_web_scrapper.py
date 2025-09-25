@@ -12,13 +12,15 @@ def webscraper():
     return WebScrapper()
 
 
-def test_scrap_character_activity(mocker, activity_html, webscraper, player_activity_test):
+def test_scrap_character_activity(
+    mocker, activity_html, webscraper, player_activity_test
+):
     mock_response = MagicMock()
     mock_response.text = activity_html
     mock_response.content = activity_html.encode()
-    mocker.patch('requests.get', return_value=mock_response)
-    mocker.patch('time.time', side_effect=[1000, 1001])
-    mocker.patch('backend.web_scrapper.datetime', autospec=True)
+    mocker.patch("requests.get", return_value=mock_response)
+    mocker.patch("time.time", side_effect=[1000, 1001])
+    mocker.patch("backend.web_scrapper.datetime", autospec=True)
     ws.datetime.now.return_value = datetime(2025, 1, 1, 12, 0, 0)
     player_activity, elapsed = webscraper.scrap_character_activity()
     assert elapsed == 1
@@ -29,28 +31,33 @@ def test_scrap_character_activity_empty(mocker, empty_activity_html, webscraper)
     mock_response = MagicMock()
     mock_response.text = empty_activity_html
     mock_response.content = empty_activity_html.encode()
-    mocker.patch('requests.get', return_value=mock_response)
-    mocker.patch('time.time', side_effect=[1000, 1001])
-    mocker.patch('backend.web_scrapper.datetime', autospec=True)
+    mocker.patch("requests.get", return_value=mock_response)
+    mocker.patch("time.time", side_effect=[1000, 1001])
+    mocker.patch("backend.web_scrapper.datetime", autospec=True)
     ws.datetime.now.return_value = datetime(2025, 1, 1, 12, 0, 0)
     player_activity, elapsed = webscraper.scrap_character_activity()
     assert elapsed == 1
-    assert player_activity == [{
-        "profile": 0,
-        "char": 0,
-        "datetime": "2025-01-01 12:00:00"
-    }]
+    assert player_activity == [
+        {"profile": 0, "char": 0, "datetime": "2025-01-01 12:00:00"}
+    ]
 
 
-def test_scrap_profile_data_multiple(mocker, webscraper, player_profiles, profile_5111553, profile_973998, player_profiles_test):
-    mocker.patch('time.sleep', return_value=None)
+def test_scrap_profile_data_multiple(
+    mocker,
+    webscraper,
+    player_profiles,
+    profile_5111553,
+    profile_973998,
+    player_profiles_test,
+):
+    mocker.patch("time.sleep", return_value=None)
     mock_response1 = MagicMock()
     mock_response1.text = profile_5111553
     mock_response1.content = profile_5111553.encode()
     mock_response2 = MagicMock()
     mock_response2.text = profile_973998
     mock_response2.content = profile_973998.encode()
-    mocker.patch('requests.get', side_effect=[mock_response1, mock_response2])
+    mocker.patch("requests.get", side_effect=[mock_response1, mock_response2])
     result = webscraper.scrap_profile_data(player_profiles)
     assert result == player_profiles_test
 
@@ -93,11 +100,15 @@ def test_get_stats_inner_div(activity_html, webscraper):
 
 
 def test_construct_profile_url(webscraper):
-    assert webscraper.construct_profile_url("5111553", "142716") \
-           == "https://www.margonem.pl/profile/view,5111553#char_142716,berufs"
+    assert (
+        webscraper.construct_profile_url("5111553", "142716")
+        == "https://www.margonem.pl/profile/view,5111553#char_142716,berufs"
+    )
 
 
-def test_extract_player_activity_from_inner_div(activity_html, webscraper, mocker, activity_html_result):
+def test_extract_player_activity_from_inner_div(
+    activity_html, webscraper, mocker, activity_html_result
+):
     soup = BeautifulSoup(activity_html, "html.parser")
     inner = webscraper.get_stats_inner_div(soup)
     mocker.patch.object(WebScrapper, "get_now", return_value="2025-01-01 12:00:00")
@@ -105,7 +116,9 @@ def test_extract_player_activity_from_inner_div(activity_html, webscraper, mocke
     assert act == activity_html_result
 
 
-def test_extract_characters_from_profiles(profile_5111553, profile_973998, webscraper, player_profiles_test):
+def test_extract_characters_from_profiles(
+    profile_5111553, profile_973998, webscraper, player_profiles_test
+):
     soup = BeautifulSoup(profile_5111553, "html.parser")
     result1 = webscraper.extract_characters_from_profile(soup, "5111553")
     soup = BeautifulSoup(profile_973998, "html.parser")

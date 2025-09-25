@@ -23,6 +23,7 @@ class DataPage(Gui):
     page()
         Build and render the data table UI, input, and filtering button.
     """
+
     def __init__(self):
         super().__init__()
         self.table_data = []
@@ -49,7 +50,9 @@ class DataPage(Gui):
         None
         """
         ui.page_title("Data")
-        with ui.column().classes(f"{self.background} w-full min-h-screen items-center justify-start"):
+        with ui.column().classes(
+            f"{self.background} w-full min-h-screen items-center justify-start"
+        ):
             self.navbar()
             self.table_data = self.helpers.fill_table()
             self.input_nick = ui.input("Nick", placeholder="Enter player nick").classes(
@@ -71,13 +74,29 @@ class DataPage(Gui):
             )
 
             columns = [
-                {'name': 'nick', 'label': 'Nick', 'field': 'nick', 'sortable': True, 'align': 'left'},
-                {'name': 'lvl', 'label': 'Lvl', 'field': 'lvl', 'sortable': True, 'align': 'right'},
-                {'name': 'guild', 'label': 'Guild', 'field': 'guild', 'sortable': False, 'align': 'left'},
+                {
+                    "name": "nick",
+                    "label": "Nick",
+                    "field": "nick",
+                    "sortable": True,
+                    "align": "left",
+                },
+                {
+                    "name": "lvl",
+                    "label": "Lvl",
+                    "field": "lvl",
+                    "sortable": True,
+                    "align": "right",
+                },
+                {
+                    "name": "guild",
+                    "label": "Guild",
+                    "field": "guild",
+                    "sortable": False,
+                    "align": "left",
+                },
             ]
 
             table = ui.table(
-                columns=columns,
-                rows=self.table_data,
-                row_key='nick'
+                columns=columns, rows=self.table_data, row_key="nick"
             ).classes("text-lg w-[700px]")

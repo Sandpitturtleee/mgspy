@@ -7,40 +7,41 @@ from frontend.gui import Gui
 
 class ActivityPage(Gui):
     """
-        A GUI page for displaying player activity as an interactive plot using NiceGUI.
+    A GUI page for displaying player activity as an interactive plot using NiceGUI.
 
-        Attributes
-        ----------
-        start_time : ui.input
-            NiceGUI input widget for selecting the start time (HH:MM).
-        start_date : ui.input
-            NiceGUI input widget for selecting the start date (YYYY-MM-DD).
-        start_date_str : str
-            Default value for the start date input widget.
-        start_time_str : str
-            Default value for the start time input widget.
-        input_nick : ui.input
-            NiceGUI input widget for the player's nick.
-        plot_area : ui.image
-            NiceGUI image widget for displaying the activity plot.
-        helpers : ActivityPageHelpers
-            Helper class instance for business logic and plotting.
+    Attributes
+    ----------
+    start_time : ui.input
+        NiceGUI input widget for selecting the start time (HH:MM).
+    start_date : ui.input
+        NiceGUI input widget for selecting the start date (YYYY-MM-DD).
+    start_date_str : str
+        Default value for the start date input widget.
+    start_time_str : str
+        Default value for the start time input widget.
+    input_nick : ui.input
+        NiceGUI input widget for the player's nick.
+    plot_area : ui.image
+        NiceGUI image widget for displaying the activity plot.
+    helpers : ActivityPageHelpers
+        Helper class instance for business logic and plotting.
 
-        Methods
-        -------
-        page()
-            Build and render the activity page UI and widgets.
-        convert_datetime() -> datetime
-            Combine start date and time input fields into a `datetime` object.
-        make_plot()
-            Triggered on button click; retrieves player activity, generates and displays the plot.
-        """
+    Methods
+    -------
+    page()
+        Build and render the activity page UI and widgets.
+    convert_datetime() -> datetime
+        Combine start date and time input fields into a `datetime` object.
+    make_plot()
+        Triggered on button click; retrieves player activity, generates and displays the plot.
+    """
+
     def __init__(self):
         super().__init__()
         self.start_time = None
         self.start_date = None
-        self.start_date_str = '2025-06-28'
-        self.start_time_str = '11:00'
+        self.start_date_str = "2025-06-28"
+        self.start_time_str = "11:00"
         self.input_nick = None
         self.plot_area = None
         self.helpers = ActivityPageHelpers()
@@ -60,17 +61,25 @@ class ActivityPage(Gui):
         None
         """
         ui.page_title("Activity")
-        with ui.column().classes(f"{self.background} w-full min-h-screen items-center justify-start"):
+        with ui.column().classes(
+            f"{self.background} w-full min-h-screen items-center justify-start"
+        ):
             self.navbar()
             self.input_nick = ui.input("Nick", placeholder="Enter player nick").classes(
                 "w-[400px] text-lg mt-14"
             )
             with ui.column().classes("mt-5 items-start"):
                 with ui.row().classes("gap-1 items-center"):
-                    self.start_date = ui.input('', value=self.start_date_str) \
-                        .props('placeholder=YYYY-MM-DD dense').classes('w-24 text-xs px-1 py-1')
-                    self.start_time = ui.input('', value=self.start_time_str) \
-                        .props('placeholder=HH:MM dense').classes('w-16 text-xs px-1 py-1 ml-1')
+                    self.start_date = (
+                        ui.input("", value=self.start_date_str)
+                        .props("placeholder=YYYY-MM-DD dense")
+                        .classes("w-24 text-xs px-1 py-1")
+                    )
+                    self.start_time = (
+                        ui.input("", value=self.start_time_str)
+                        .props("placeholder=HH:MM dense")
+                        .classes("w-16 text-xs px-1 py-1 ml-1")
+                    )
 
             ui.button(
                 "Show player activity",
@@ -116,7 +125,7 @@ class ActivityPage(Gui):
         """
         nick = self.input_nick.value.strip()
         date = self.convert_datetime()
-        self.plot_area.source = ''
+        self.plot_area.source = ""
 
         if not nick:
             ui.notify("Please enter a nick!", color="red")

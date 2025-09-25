@@ -60,7 +60,9 @@ class AppProcesses:
         self.save_player_activity_interval = 600
         self.app_run_time = 3600 * 26 * 2
 
-    def scrap_player_activity(self, scrapped_player_activity: list[dict], control_event: Event):
+    def scrap_player_activity(
+        self, scrapped_player_activity: list[dict], control_event: Event
+    ):
         """
         Scrape player activity data from the web scrapper and append it to the list.
 
@@ -86,7 +88,9 @@ class AppProcesses:
             if remaining > 0:
                 self.smart_sleep(remaining, control_event)
 
-    def save_player_activity(self, scrapped_player_activity: list[dict], control_event: Event):
+    def save_player_activity(
+        self, scrapped_player_activity: list[dict], control_event: Event
+    ):
         """
         Save player activity data into a database from the list at specified intervals.
 
@@ -201,7 +205,9 @@ class AppProcesses:
             elapsed += sleep_time
 
     @staticmethod
-    def extract_unique_profiles(activity_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def extract_unique_profiles(
+        activity_list: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
         """
         Get unique profile dicts from activity
 

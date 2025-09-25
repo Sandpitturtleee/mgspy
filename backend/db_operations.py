@@ -153,11 +153,11 @@ class DbOperations:
 
     @staticmethod
     def select_data(
-            db_connection,
-            table: str,
-            columns: str = "*",
-            where_clause: str = None,
-            params: tuple = None,
+        db_connection,
+        table: str,
+        columns: str = "*",
+        where_clause: str = None,
+        params: tuple = None,
     ):
         """
         Select data from a PostgreSQL table.
@@ -190,7 +190,7 @@ class DbOperations:
 
     @staticmethod
     def delete_data(
-            db_connection, table: str, where_clause: str = None, params: tuple = None
+        db_connection, table: str, where_clause: str = None, params: tuple = None
     ):
         """
         Delete data from a PostgreSQL table.

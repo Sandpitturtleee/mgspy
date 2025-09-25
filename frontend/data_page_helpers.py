@@ -54,7 +54,7 @@ class DataPageHelpers:
         return self.db.select_data(
             db_connection=self.connection,
             table="profile_data",
-            columns="profile, char, nick, lvl, clan"
+            columns="profile, char, nick, lvl, clan",
         )
 
     def fill_table(self) -> List[Dict[str, str | Any]]:
@@ -69,12 +69,14 @@ class DataPageHelpers:
         data: List[Dict[str, str | Any]] = []
         for profile, char, nick, lvl, clan in self.data:
             lvl = int(lvl)
-            data.append({
-                'nick': nick,
-                'lvl': lvl,
-                'guild': clan,
-            })
-        return sorted(data, key=lambda x: x['lvl'], reverse=True)
+            data.append(
+                {
+                    "nick": nick,
+                    "lvl": lvl,
+                    "guild": clan,
+                }
+            )
+        return sorted(data, key=lambda x: x["lvl"], reverse=True)
 
     def fill_table_input(self, nick: str) -> List[Dict[str, str | Any]]:
         """
@@ -135,7 +137,9 @@ class DataPageHelpers:
                 return profile
         return None
 
-    def get_unique_chars_by_profile(self, rows: list, profile_id: str) -> List[Dict[str, str | Any]]:
+    def get_unique_chars_by_profile(
+        self, rows: list, profile_id: str
+    ) -> List[Dict[str, str | Any]]:
         """
         Return all unique characters for a given profile with corresponding profile URLs.
 
@@ -157,11 +161,8 @@ class DataPageHelpers:
             if profile == profile_id and char not in seen_chars:
                 seen_chars.add(char)
                 url = self.construct_profile_url(profile, char)
-                result.append({
-                    'nick': nick_db,
-                    'lvl': int(lvl),
-                    'guild': clan,
-                    'profile': url
-                })
-        result.sort(key=lambda x: x['lvl'], reverse=True)
+                result.append(
+                    {"nick": nick_db, "lvl": int(lvl), "guild": clan, "profile": url}
+                )
+        result.sort(key=lambda x: x["lvl"], reverse=True)
         return result

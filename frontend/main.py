@@ -9,8 +9,8 @@ class App(Gui):
         super().__init__()
         self.table_page = DataPage()
         self.activity_page = ActivityPage()
-        ui.page('/')(self.table_page.page)
-        ui.page('/activity')(self.activity_page.page)
+        ui.page("/")(self.table_page.page)
+        ui.page("/activity")(self.activity_page.page)
 
 
 if __name__ in {"__main__", "__mp_main__"}:

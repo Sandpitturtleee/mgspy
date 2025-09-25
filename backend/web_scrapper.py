@@ -43,6 +43,7 @@ class WebScrapper:
         For each player activity, scrapes the corresponding profile page and extracts character information.
 
     """
+
     def __init__(self):
         """
         Initialize the WebScrapper with default URLs.
@@ -51,7 +52,9 @@ class WebScrapper:
         self.profile_url = "https://www.margonem.pl/profile/view"
 
     @staticmethod
-    def get_soup(url: str, max_retries: int = 3, timeout: int = 30) -> Optional[BeautifulSoup]:
+    def get_soup(
+        url: str, max_retries: int = 3, timeout: int = 30
+    ) -> Optional[BeautifulSoup]:
         """
         Attempt to fetch and parse a webpage into a BeautifulSoup object.
 
@@ -73,7 +76,7 @@ class WebScrapper:
             try:
                 response = requests.get(url, timeout=timeout)
                 response.raise_for_status()
-                return BeautifulSoup(response.content, 'html.parser')
+                return BeautifulSoup(response.content, "html.parser")
             except requests.exceptions.ReadTimeout:
                 print(f"Attempt {attempt + 1}: Read timed out for {url}")
             except requests.exceptions.RequestException as e:
@@ -130,7 +133,9 @@ class WebScrapper:
         BeautifulSoup or None
             The inner div containing statistics, or None if not found.
         """
-        outer_div = soup.find("div", class_="light-brown-box news-container no-footer berufs-popup")
+        outer_div = soup.find(
+            "div", class_="light-brown-box news-container no-footer berufs-popup"
+        )
         if outer_div:
             return outer_div.find("div", class_="news-body")
         return None
@@ -153,7 +158,9 @@ class WebScrapper:
         """
         return f"{self.profile_url},{profile}#char_{char},berufs"
 
-    def extract_player_activity_from_inner_div(self, inner_div: BeautifulSoup) -> List[Dict[str, Any]]:
+    def extract_player_activity_from_inner_div(
+        self, inner_div: BeautifulSoup
+    ) -> List[Dict[str, Any]]:
         """
         Extract player activity data from the statistics div.
 
@@ -173,11 +180,13 @@ class WebScrapper:
             profile_info = self.parse_profile_char_from_link(a_tag["href"])
             if profile_info:
                 profile_number, char_number = profile_info
-                player_activity.append({
-                    "profile": profile_number,
-                    "char": char_number,
-                    "datetime": current_datetime,
-                })
+                player_activity.append(
+                    {
+                        "profile": profile_number,
+                        "char": char_number,
+                        "datetime": current_datetime,
+                    }
+                )
         return player_activity
 
     def scrap_character_activity(self) -> Tuple[List[Dict[str, Any]], float]:
@@ -197,10 +206,14 @@ class WebScrapper:
             soup = self.get_soup(self.stats_url)
             inner_div = self.get_stats_inner_div(soup)
             if not inner_div:
-                raise Exception("Could not find the required 'news-body' div on the page.")
+                raise Exception(
+                    "Could not find the required 'news-body' div on the page."
+                )
             player_activity = self.extract_player_activity_from_inner_div(inner_div)
             if not player_activity:
-                player_activity.append({"profile": 0, "char": 0, "datetime": self.get_now()})
+                player_activity.append(
+                    {"profile": 0, "char": 0, "datetime": self.get_now()}
+                )
             elapsed_time = time.time() - start_time
         except Exception as e:
             elapsed_time = time.time() - start_time
@@ -208,7 +221,9 @@ class WebScrapper:
         return player_activity, elapsed_time
 
     @staticmethod
-    def extract_characters_from_profile(soup: BeautifulSoup, profile: str) -> List[Dict[str, Any]]:
+    def extract_characters_from_profile(
+        soup: BeautifulSoup, profile: str
+    ) -> List[Dict[str, Any]]:
         """
         Extract character information from a player's profile.
 
@@ -230,16 +245,20 @@ class WebScrapper:
             for li in character_list_div.find_all("li", class_="char-row"):
                 data_world = li.get("data-world", "")
                 if data_world.startswith("#berufs"):
-                    player_data.append({
-                        "profile": profile,
-                        "char": li.get("data-id", ""),
-                        "nick": li.get("data-nick", ""),
-                        "lvl": li.get("data-lvl", ""),
-                        "world": data_world,
-                    })
+                    player_data.append(
+                        {
+                            "profile": profile,
+                            "char": li.get("data-id", ""),
+                            "nick": li.get("data-nick", ""),
+                            "lvl": li.get("data-lvl", ""),
+                            "world": data_world,
+                        }
+                    )
         return player_data
 
-    def scrap_profile_data(self, player_activity: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def scrap_profile_data(
+        self, player_activity: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         For each player activity, scrape the corresponding profile and extract character information.
 

@@ -28,7 +28,9 @@ def test_table_displays_initial_data(driver):
 
 def test_data_input_and_filtering(driver):
     driver.get(BASE_URL)
-    input_box = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Enter player nick']")
+    input_box = driver.find_element(
+        By.CSS_SELECTOR, "input[placeholder='Enter player nick']"
+    )
     input_box.clear()
     input_box.send_keys("TEST")
 

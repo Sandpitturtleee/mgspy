@@ -5,24 +5,29 @@ from frontend.data_page import DataPage
 
 @pytest.fixture
 def table_input():
-    return [{'nick': 'Sold', 'lvl': 53, 'guild': ''}, ]
+    return [
+        {"nick": "Sold", "lvl": 53, "guild": ""},
+    ]
 
 
 @pytest.fixture
 def mock_fill_table_input(mocker, table_input):
     return mocker.patch.object(
-        DataPageHelpers, "fill_table_input", return_value=table_input)
+        DataPageHelpers, "fill_table_input", return_value=table_input
+    )
 
 
 @pytest.fixture
 def fill_table():
-    return [{'nick': 'Sold', 'lvl': 53, 'guild': ''}, {'nick': 'Charmed', 'lvl': 135, 'guild': ''}]
+    return [
+        {"nick": "Sold", "lvl": 53, "guild": ""},
+        {"nick": "Charmed", "lvl": 135, "guild": ""},
+    ]
 
 
 @pytest.fixture
 def mock_fill_table(mocker):
-    return mocker.patch.object(
-        DataPageHelpers, "fill_table", return_value=fill_table)
+    return mocker.patch.object(DataPageHelpers, "fill_table", return_value=fill_table)
 
 
 def test_page_calls_helpers_and_sets_values(mocker, mock_fill_table):
@@ -41,7 +46,8 @@ def test_page_calls_helpers_and_sets_values(mocker, mock_fill_table):
 
 
 def test_update_table_button_triggers_fill_table_input(
-        mocker, mock_fill_table, mock_fill_table_input,fill_table,table_input):
+    mocker, mock_fill_table, mock_fill_table_input, fill_table, table_input
+):
     dp = DataPage()
 
     dp.input_nick = mocker.Mock()
@@ -51,7 +57,7 @@ def test_update_table_button_triggers_fill_table_input(
     local_ctx = {}
 
     def fake_table(**kwargs):
-        local_ctx['rows'] = kwargs['rows']
+        local_ctx["rows"] = kwargs["rows"]
         return table_mock
 
     mocker.patch("nicegui.ui.table", fake_table)
@@ -65,7 +71,7 @@ def test_update_table_button_triggers_fill_table_input(
     assert table_mock.rows == table_input
 
 
-def test_update_table_defaults_on_empty(mocker, mock_fill_table,table_input):
+def test_update_table_defaults_on_empty(mocker, mock_fill_table, table_input):
     dp = DataPage()
     dp.input_nick = mocker.Mock()
     dp.input_nick.value = ""

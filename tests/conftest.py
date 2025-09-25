@@ -68,7 +68,10 @@ def empty_activity_html():
 
 @pytest.fixture
 def player_profiles():
-    return [{"profile": "5111553", "char": "155755"}, {"profile": "973998", "char": "245184"}]
+    return [
+        {"profile": "5111553", "char": "155755"},
+        {"profile": "973998", "char": "245184"},
+    ]
 
 
 @pytest.fixture
@@ -87,7 +90,7 @@ def profile_973998():
 
 @pytest.fixture
 def img():
-    return BytesIO(b'12345678')
+    return BytesIO(b"12345678")
 
 
 @pytest.fixture
